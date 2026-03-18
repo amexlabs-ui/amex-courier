@@ -54,3 +54,22 @@ td,th{
 padding:10px;
 border:1px solid #ddd;
 }
+.timeline{
+display:flex;
+justify-content:space-between;
+margin:30px 0;
+}
+
+.timeline div{
+flex:1;
+padding:10px;
+text-align:center;
+border-bottom:3px solid #ccc;
+transition:0.3s;
+}
+
+.timeline .active{
+border-color:#0a4abf;
+color:#0a4abf;
+font-weight:bold;
+}
