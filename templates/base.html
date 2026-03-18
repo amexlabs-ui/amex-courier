@@ -2,19 +2,155 @@
 <html>
 <head>
 <title>Amex Courier</title>
-<link rel="stylesheet" href="/static/style.css">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+
+<style>
+body{
+margin:0;
+font-family:'Poppins',sans-serif;
+background:#f4f6f9;
+}
+
+/* NAVBAR */
+.navbar{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 50px;
+background:white;
+box-shadow:0 2px 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+font-weight:600;
+font-size:20px;
+color:#0a4abf;
+}
+
+.nav-links a{
+margin-left:25px;
+text-decoration:none;
+color:#333;
+font-weight:500;
+}
+
+/* HERO */
+.hero{
+background:linear-gradient(135deg,#4a00e0,#1976d2);
+color:white;
+padding:120px 20px;
+text-align:center;
+}
+
+.hero h1{
+font-size:42px;
+margin-bottom:10px;
+}
+
+.hero p{
+opacity:0.9;
+}
+
+/* TRACK BOX */
+.track-box{
+margin-top:30px;
+}
+
+.track-box input{
+padding:15px;
+width:300px;
+border:none;
+border-radius:5px 0 0 5px;
+}
+
+.track-box button{
+padding:15px 25px;
+background:#ff7a00;
+border:none;
+color:white;
+border-radius:0 5px 5px 0;
+cursor:pointer;
+}
+
+/* CARD */
+.card{
+background:white;
+padding:30px;
+margin:40px auto;
+width:90%;
+max-width:600px;
+border-radius:10px;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+/* FORM */
+.form input{
+width:100%;
+padding:12px;
+margin:10px 0;
+border:1px solid #ccc;
+border-radius:5px;
+}
+
+.form button{
+width:100%;
+padding:12px;
+background:#0a4abf;
+color:white;
+border:none;
+border-radius:5px;
+}
+
+/* TABLE */
+table{
+width:90%;
+margin:40px auto;
+background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 10px 30px rgba(0,0,0,0.1);
+}
+
+th{
+background:#0a4abf;
+color:white;
+padding:15px;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+/* FOOTER */
+.footer{
+background:#111;
+color:white;
+text-align:center;
+padding:20px;
+margin-top:50px;
+}
+</style>
+
 </head>
+
 <body>
 
-<nav>
-    <h2>Amex Courier</h2>
-    <div>
-        <a href="/">Home</a>
-        <a href="/login">Login</a>
-    </div>
-</nav>
+<div class="navbar">
+<div class="logo">Amex Courier</div>
+
+<div class="nav-links">
+<a href="/">Home</a>
+<a href="/login">Login</a>
+</div>
+</div>
 
 {% block content %}{% endblock %}
+
+<div class="footer">
+Customer Care: frankiebreeuwsma@myself.com
+</div>
 
 </body>
 </html>
