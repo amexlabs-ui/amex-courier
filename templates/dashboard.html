@@ -22,9 +22,11 @@
 <td>{{ d[3] }}</td>
 
 <td>
-<form action="/update/{{ d[1] }}" method="POST">
-<input name="location" placeholder="New location">
-<button>Update</button>
+<form method="POST" class="form">
+<input name="location" placeholder="Location (e.g London)">
+<input name="lat" placeholder="Latitude (e.g 51.5074)">
+<input name="lng" placeholder="Longitude (e.g -0.1278)">
+<button>Create Shipment</button>
 </form>
 </td>
 
