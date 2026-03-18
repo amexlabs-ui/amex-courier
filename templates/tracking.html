@@ -1,9 +1,14 @@
-<div class="card">
+{% extends "base.html" %}
+{% block content %}
 
-<h2>{{tracking}}</h2>
+<h2>Tracking Result</h2>
 
-{% for row in data %}
-<p>{{row[4]}} - {{row[2]}} - {{row[3]}}</p>
-{% endfor %}
+{% if data %}
+<p><b>Tracking:</b> {{ data[1] }}</p>
+<p><b>Status:</b> {{ data[2] }}</p>
+<p><b>Location:</b> {{ data[3] }}</p>
+{% else %}
+<p>Not Found</p>
+{% endif %}
 
-</div>
+{% endblock %}
