@@ -1,14 +1,37 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Tracking Result</h2>
-
 {% if data %}
-<p><b>Tracking:</b> {{ data[1] }}</p>
-<p><b>Status:</b> {{ data[2] }}</p>
-<p><b>Location:</b> {{ data[3] }}</p>
+
+<div class="card">
+
+<h2>Tracking: {{ data[1] }}</h2>
+
+<!-- TIMELINE -->
+<div class="timeline">
+<div class="{{ 'active' if data[2]=='Processing' else '' }}">Processing</div>
+<div class="{{ 'active' if data[2]=='In Transit' else '' }}">In Transit</div>
+<div class="{{ 'active' if data[2]=='Arrived Hub' else '' }}">Arrived Hub</div>
+<div class="{{ 'active' if data[2]=='Out for Delivery' else '' }}">Out for Delivery</div>
+<div class="{{ 'active' if data[2]=='Delivered' else '' }}">Delivered</div>
+</div>
+
+<p><b>Current Location:</b> {{ data[3] }}</p>
+
+<!-- MAP -->
+<iframe
+width="100%"
+height="300"
+style="border:0"
+loading="lazy"
+allowfullscreen
+src="https://maps.google.com/maps?q={{ data[4] }},{{ data[5] }}&z=12&output=embed">
+</iframe>
+
+</div>
+
 {% else %}
-<p>Not Found</p>
+<p>Tracking not found</p>
 {% endif %}
 
 {% endblock %}
