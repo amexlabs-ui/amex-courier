@@ -4,6 +4,8 @@ import sqlite3, random, os
 app = Flask(__name__)
 app.secret_key = "secret123"
 
+
+# ---------- INIT DB ----------
 if not os.path.exists("database.db"):
     import create_db
 
@@ -12,15 +14,15 @@ def generate_tracking():
     return "AMX" + str(random.randint(100000,999999))
 
 
-# HOME
+# ---------- HOME ----------
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# -------- ADMIN LOGIN --------
-@app.route("/admin-secret-login", methods=["GET","POST"])
-def admin_login():
+# ---------- LOGIN (VISIBLE) ----------
+@app.route("/login", methods=["GET","POST"])
+def login():
     if request.method == "POST":
         conn = sqlite3.connect("database.db")
         c = conn.cursor()
@@ -38,11 +40,17 @@ def admin_login():
     return render_template("admin_login.html")
 
 
-# -------- DASHBOARD --------
+# ---------- SECRET LOGIN (HIDDEN) ----------
+@app.route("/admin-secret-login", methods=["GET","POST"])
+def admin_secret():
+    return login()
+
+
+# ---------- DASHBOARD ----------
 @app.route("/dashboard")
 def dashboard():
     if not session.get("admin"):
-        return redirect("/admin-secret-login")
+        return redirect("/login")
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
@@ -53,11 +61,11 @@ def dashboard():
     return render_template("dashboard.html", data=data)
 
 
-# -------- CREATE SHIPMENT --------
+# ---------- CREATE ----------
 @app.route("/create", methods=["POST"])
 def create():
     if not session.get("admin"):
-        return redirect("/admin-secret-login")
+        return redirect("/login")
 
     tracking = generate_tracking()
 
@@ -75,11 +83,11 @@ def create():
     return redirect("/dashboard")
 
 
-# -------- UPDATE SHIPMENT --------
+# ---------- UPDATE ----------
 @app.route("/update/<tracking>", methods=["POST"])
 def update(tracking):
     if not session.get("admin"):
-        return redirect("/admin-secret-login")
+        return redirect("/login")
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
@@ -99,7 +107,7 @@ def update(tracking):
     return redirect("/dashboard")
 
 
-# -------- TRACK --------
+# ---------- TRACK ----------
 @app.route("/track", methods=["POST"])
 def track():
     code = request.form["tracking"]
@@ -112,6 +120,13 @@ def track():
     conn.close()
 
     return render_template("tracking.html", result=result)
+
+
+# ---------- LOGOUT ----------
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 
 if __name__ == "__main__":
