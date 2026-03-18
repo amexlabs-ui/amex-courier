@@ -19,7 +19,8 @@ id INTEGER PRIMARY KEY AUTOINCREMENT,
 tracking TEXT,
 status TEXT,
 location TEXT,
-user_id INTEGER
+lat TEXT,
+lng TEXT
 )
 """)
 
