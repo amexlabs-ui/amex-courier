@@ -1,9 +1,11 @@
-<div class="card">
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Create Shipment</h2>
+
 <form method="POST">
-<input name="sender">
-<input name="receiver">
-<input name="origin">
-<input name="destination">
+<input name="location" placeholder="Starting Location">
 <button>Create</button>
 </form>
-</div>
+
+{% endblock %}
