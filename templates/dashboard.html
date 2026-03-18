@@ -1,13 +1,34 @@
-<div class="card">
-<h2>Admin</h2>
+{% extends "base.html" %}
+{% block content %}
+
+<h2>Admin Dashboard</h2>
+
 <a href="/create">Create Shipment</a>
 
 <table>
-{% for s in shipments %}
 <tr>
-<td>{{s[1]}}</td>
-<td>{{s[6]}}</td>
+<th>Tracking</th>
+<th>Status</th>
+<th>Location</th>
+<th>Update</th>
+</tr>
+
+{% for d in data %}
+<tr>
+<td>{{ d[1] }}</td>
+<td>{{ d[2] }}</td>
+<td>{{ d[3] }}</td>
+
+<td>
+<form action="/update/{{ d[1] }}" method="POST">
+<input name="location" placeholder="New location">
+<button>Update</button>
+</form>
+</td>
+
 </tr>
 {% endfor %}
+
 </table>
-</div>
+
+{% endblock %}
