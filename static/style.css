@@ -1,0 +1,108 @@
+body{
+margin:0;
+font-family:'Segoe UI',sans-serif;
+background:#f4f6f9;
+}
+
+/* NAVBAR */
+.nav{
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:15px 40px;
+background:white;
+box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+.logo-area{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+.logo-area img{
+height:45px;
+}
+
+.nav a{
+margin-left:20px;
+text-decoration:none;
+color:#333;
+font-weight:bold;
+}
+
+/* HERO */
+.hero{
+background:linear-gradient(135deg,#0a4abf,#1976d2);
+color:white;
+text-align:center;
+padding:100px 20px;
+}
+
+.hero h1{
+font-size:42px;
+}
+
+.hero input{
+padding:15px;
+width:280px;
+border:none;
+border-radius:5px 0 0 5px;
+}
+
+.hero button{
+padding:15px 25px;
+background:#ff7a00;
+border:none;
+color:white;
+border-radius:0 5px 5px 0;
+cursor:pointer;
+}
+
+/* SERVICES */
+.services{
+padding:60px;
+text-align:center;
+}
+
+.grid{
+display:flex;
+justify-content:center;
+gap:30px;
+flex-wrap:wrap;
+}
+
+.card{
+background:white;
+padding:30px;
+width:260px;
+border-radius:10px;
+box-shadow:0 5px 15px rgba(0,0,0,0.1);
+transition:0.3s;
+}
+
+.card:hover{
+transform:translateY(-10px);
+}
+
+/* FOOTER */
+footer{
+background:#111;
+color:white;
+text-align:center;
+padding:20px;
+margin-top:40px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+.hero input{
+width:90%;
+margin-bottom:10px;
+border-radius:5px;
+}
+.hero button{
+width:90%;
+border-radius:5px;
+}
+}
