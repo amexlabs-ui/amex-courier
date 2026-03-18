@@ -1,0 +1,13 @@
+<div class="card">
+<h2>Admin</h2>
+<a href="/create">Create Shipment</a>
+
+<table>
+{% for s in shipments %}
+<tr>
+<td>{{s[1]}}</td>
+<td>{{s[6]}}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
