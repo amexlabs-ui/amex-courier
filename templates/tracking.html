@@ -1,13 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 
-<div class="hero">
-<h1>Track Your Shipment</h1>
+<div class="card">
 
-<form action="/track" method="POST">
-<input name="tracking" placeholder="Enter Tracking Code" required>
-<button type="submit">Track</button>
-</form>
+{% if result %}
+<h2>{{ result[1] }}</h2>
+<p>Status: {{ result[2] }}</p>
+<p>Location: {{ result[3] }}</p>
+{% else %}
+<p>Tracking not found</p>
+{% endif %}
 
 </div>
 
