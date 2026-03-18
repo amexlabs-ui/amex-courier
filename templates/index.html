@@ -2,12 +2,13 @@
 {% block content %}
 
 <div class="hero">
-    <h1>Fast & Reliable Shipping</h1>
+<h1>Fast & Reliable Global Shipping</h1>
+<p>Track your shipment in real-time worldwide</p>
 
-    <form action="/track" method="POST">
-        <input name="tracking" placeholder="Enter Tracking Code">
-        <button>Track</button>
-    </form>
+<form action="/track" method="POST" class="track-box">
+<input name="tracking" placeholder="Enter Tracking Number">
+<button>Track</button>
+</form>
 </div>
 
 {% endblock %}
