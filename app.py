@@ -7,43 +7,42 @@ app.secret_key = "secret123"
 if not os.path.exists("database.db"):
     import create_db
 
-def gen_tracking():
-    return "AMX" + str(random.randint(1000000,9999999))
+
+def generate_tracking():
+    return "AMX" + str(random.randint(100000,999999))
 
 
+# HOME
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
-# AUTH
-
-@app.route("/login", methods=["GET","POST"])
-def login():
+# -------- ADMIN LOGIN --------
+@app.route("/admin-secret-login", methods=["GET","POST"])
+def admin_login():
     if request.method == "POST":
         conn = sqlite3.connect("database.db")
         c = conn.cursor()
 
-        c.execute("SELECT * FROM users WHERE username=? AND password=?",
+        c.execute("SELECT * FROM admin WHERE username=? AND password=?",
                   (request.form["username"], request.form["password"]))
 
-        user = c.fetchone()
+        admin = c.fetchone()
         conn.close()
 
-        if user:
-            session["role"] = user[4]
-            if user[4] == "admin":
-                return redirect("/dashboard")
+        if admin:
+            session["admin"] = True
+            return redirect("/dashboard")
 
-    return render_template("login.html")
+    return render_template("admin_login.html")
 
 
-# DASHBOARD
-
+# -------- DASHBOARD --------
 @app.route("/dashboard")
 def dashboard():
-    if session.get("role") != "admin":
-        return redirect("/login")
+    if not session.get("admin"):
+        return redirect("/admin-secret-login")
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
@@ -54,53 +53,44 @@ def dashboard():
     return render_template("dashboard.html", data=data)
 
 
-# CREATE SHIPMENT
-
-@app.route("/create", methods=["GET","POST"])
+# -------- CREATE SHIPMENT --------
+@app.route("/create", methods=["POST"])
 def create():
-    if session.get("role") != "admin":
-        return redirect("/login")
+    if not session.get("admin"):
+        return redirect("/admin-secret-login")
 
-    if request.method == "POST":
-        tracking = gen_tracking()
+    tracking = generate_tracking()
 
-        conn = sqlite3.connect("database.db")
-        c = conn.cursor()
+    conn = sqlite3.connect("database.db")
+    c = conn.cursor()
 
-        c.execute("INSERT INTO shipments VALUES(NULL,?,?,?,?,?)",
-                  (tracking,
-                   "Processing",
-                   request.form["location"],
-                   request.form["lat"],
-                   request.form["lng"]))
+    c.execute("INSERT INTO shipments(tracking,status,location) VALUES(?,?,?)",
+              (tracking,
+               request.form["status"],
+               request.form["location"]))
 
-        conn.commit()
-        conn.close()
+    conn.commit()
+    conn.close()
 
-        return redirect("/dashboard")
-
-    return render_template("create.html")
+    return redirect("/dashboard")
 
 
-# UPDATE
-
+# -------- UPDATE SHIPMENT --------
 @app.route("/update/<tracking>", methods=["POST"])
 def update(tracking):
-    if session.get("role") != "admin":
-        return redirect("/login")
+    if not session.get("admin"):
+        return redirect("/admin-secret-login")
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
 
     c.execute("""
-    UPDATE shipments 
-    SET location=?, status=?, lat=?, lng=?
+    UPDATE shipments
+    SET status=?, location=?
     WHERE tracking=?
     """,
-    (request.form["location"],
-     request.form["status"],
-     request.form["lat"],
-     request.form["lng"],
+    (request.form["status"],
+     request.form["location"],
      tracking))
 
     conn.commit()
@@ -109,19 +99,19 @@ def update(tracking):
     return redirect("/dashboard")
 
 
-# TRACK
-
+# -------- TRACK --------
 @app.route("/track", methods=["POST"])
 def track():
     code = request.form["tracking"]
 
     conn = sqlite3.connect("database.db")
     c = conn.cursor()
+
     c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
-    data = c.fetchone()
+    result = c.fetchone()
     conn.close()
 
-    return render_template("tracking.html", data=data)
+    return render_template("tracking.html", result=result)
 
 
 if __name__ == "__main__":
