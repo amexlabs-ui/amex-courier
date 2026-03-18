@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Admin Dashboard</h2>
+<h2 style="text-align:center;">Admin Dashboard</h2>
 
-<a href="/create">Create Shipment</a>
+<div style="text-align:center;">
+<a href="/create">+ Create Shipment</a>
+</div>
 
 <table>
 <tr>
@@ -28,7 +30,6 @@
 
 </tr>
 {% endfor %}
-
 </table>
 
 {% endblock %}
