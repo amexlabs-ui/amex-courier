@@ -1,231 +1,178 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3, random, os
+import sqlite3
+import random
 
 app = Flask(__name__)
-app.secret_key = "amex_secure_key"
+app.secret_key = "supersecretkey"
 
-
-# ✅ DATABASE PATH (PERSISTENT STORAGE)
-DB_PATH = "/data/database.db"
-
-
-# ---------- DATABASE CONNECTION ----------
-def db():
-    return sqlite3.connect(DB_PATH)
-
-
-# ---------- INIT DATABASE IF NOT EXISTS ----------
+# ======================
+# DATABASE INIT
+# ======================
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = sqlite3.connect("database.db")
     c = conn.cursor()
 
-    # ADMIN TABLE
     c.execute("""
-    CREATE TABLE IF NOT EXISTS admin(
+    CREATE TABLE IF NOT EXISTS shipments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT,
-        password TEXT
-    )
-    """)
-
-    # DEFAULT ADMIN
-    c.execute("SELECT * FROM admin")
-    if not c.fetchone():
-        c.execute("INSERT INTO admin(username,password) VALUES('admin','admin123')")
-
-    # SHIPMENTS TABLE
-    c.execute("""
-    CREATE TABLE IF NOT EXISTS shipments(
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tracking TEXT,
+        tracking TEXT UNIQUE,
         status TEXT,
         location TEXT,
-        sender TEXT,
-        receiver TEXT,
-        sender_address TEXT,
-        receiver_address TEXT,
-        weight TEXT,
-        size TEXT,
-        description TEXT,
         fee TEXT,
-        delivery_date TEXT
+        weight TEXT,
+        description TEXT
     )
     """)
 
-    # HISTORY TABLE
     c.execute("""
-    CREATE TABLE IF NOT EXISTS history(
+    CREATE TABLE IF NOT EXISTS history (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tracking TEXT,
         status TEXT,
         location TEXT,
-        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
 
     conn.commit()
     conn.close()
 
+init_db()
 
-# RUN INIT
-if not os.path.exists(DB_PATH):
-    init_db()
-
-
-# ---------- GENERATE TRACKING ----------
+# ======================
+# GENERATE TRACKING
+# ======================
 def generate_tracking():
     return "AMX" + str(random.randint(100000, 999999))
 
-
-# ---------- HOME ----------
+# ======================
+# HOME
+# ======================
 @app.route("/")
 def home():
     return render_template("index.html")
 
+# ======================
+# TRACKING PAGE
+# ======================
+@app.route("/track", methods=["POST"])
+def track():
+    tracking = request.form["tracking"]
 
-# ---------- LOGIN ----------
-@app.route("/login", methods=["GET","POST"])
-def login():
-    if request.method == "POST":
-        u = request.form.get("username")
-        p = request.form.get("password")
-
-        conn = db()
-        c = conn.cursor()
-        c.execute("SELECT * FROM admin WHERE username=? AND password=?", (u,p))
-        admin = c.fetchone()
-        conn.close()
-
-        if admin:
-            session["admin"] = True
-            return redirect("/dashboard")
-
-        return render_template("admin_login.html", error="Invalid login")
-
-    return render_template("admin_login.html")
-
-
-# ---------- DASHBOARD ----------
-@app.route("/dashboard")
-def dashboard():
-    if not session.get("admin"):
-        return redirect("/login")
-
-    conn = db()
+    conn = sqlite3.connect("database.db")
     c = conn.cursor()
-    c.execute("SELECT * FROM shipments ORDER BY id DESC")
-    data = c.fetchall()
+
+    shipment = c.execute(
+        "SELECT * FROM shipments WHERE tracking=?",
+        (tracking,)
+    ).fetchone()
+
+    history = c.execute(
+        "SELECT status, location, time FROM history WHERE tracking=? ORDER BY time DESC",
+        (tracking,)
+    ).fetchall()
+
     conn.close()
 
-    return render_template("dashboard.html", data=data)
+    return render_template("tracking.html", shipment=shipment, history=history)
 
+# ======================
+# ADMIN LOGIN
+# ======================
+@app.route("/secure-admin-login-amex", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
 
-# ---------- CREATE SHIPMENT ----------
+        if username == "admin" and password == "admin123":
+            session["admin"] = True
+            return redirect("/admin-dashboard")
+
+    return render_template("login.html")
+
+# ======================
+# DASHBOARD
+# ======================
+@app.route("/admin-dashboard")
+def dashboard():
+    if not session.get("admin"):
+        return redirect("/secure-admin-login-amex")
+
+    conn = sqlite3.connect("database.db")
+    c = conn.cursor()
+
+    shipments = c.execute("SELECT * FROM shipments").fetchall()
+    conn.close()
+
+    return render_template("dashboard.html", shipments=shipments)
+
+# ======================
+# CREATE SHIPMENT
+# ======================
 @app.route("/create", methods=["POST"])
 def create():
     if not session.get("admin"):
-        return redirect("/login")
+        return redirect("/secure-admin-login-amex")
+
+    status = request.form["status"]
+    location = request.form["location"]
+    fee = request.form["fee"]
+    weight = request.form["weight"]
+    description = request.form["description"]
 
     tracking = generate_tracking()
 
-    status = request.form.get("status", "Processing")
-    location = request.form.get("location", "Unknown")
-
-    sender = request.form.get("sender", "")
-    receiver = request.form.get("receiver", "")
-    sender_address = request.form.get("sender_address", "")
-    receiver_address = request.form.get("receiver_address", "")
-    weight = request.form.get("weight", "")
-    size = request.form.get("size", "")
-    description = request.form.get("description", "")
-    fee = request.form.get("fee", "")
-    delivery_date = request.form.get("delivery_date", "")
-
-    conn = db()
+    conn = sqlite3.connect("database.db")
     c = conn.cursor()
 
     c.execute("""
-    INSERT INTO shipments(
-        tracking,status,location,sender,receiver,
-        sender_address,receiver_address,
-        weight,size,description,fee,delivery_date
-    ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-    """, (
-        tracking, status, location,
-        sender, receiver,
-        sender_address, receiver_address,
-        weight, size, description,
-        fee, delivery_date
-    ))
+        INSERT INTO shipments (tracking, status, location, fee, weight, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (tracking, status, location, fee, weight, description))
 
-    # HISTORY LOG
-    c.execute(
-        "INSERT INTO history(tracking,status,location) VALUES(?,?,?)",
-        (tracking, status, location)
-    )
+    c.execute("""
+        INSERT INTO history (tracking, status, location)
+        VALUES (?, ?, ?)
+    """, (tracking, status, location))
 
     conn.commit()
     conn.close()
 
-    return redirect("/dashboard")
+    return redirect("/admin-dashboard")
 
-
-# ---------- UPDATE ----------
+# ======================
+# UPDATE SHIPMENT
+# ======================
 @app.route("/update/<tracking>", methods=["POST"])
 def update(tracking):
     if not session.get("admin"):
-        return redirect("/login")
+        return redirect("/secure-admin-login-amex")
 
-    status = request.form.get("status")
-    location = request.form.get("location")
+    status = request.form["status"]
+    location = request.form["location"]
 
-    conn = db()
+    conn = sqlite3.connect("database.db")
     c = conn.cursor()
 
-    c.execute(
-        "UPDATE shipments SET status=?, location=? WHERE tracking=?",
-        (status, location, tracking)
-    )
+    c.execute("""
+        UPDATE shipments
+        SET status=?, location=?
+        WHERE tracking=?
+    """, (status, location, tracking))
 
-    c.execute(
-        "INSERT INTO history(tracking,status,location) VALUES(?,?,?)",
-        (tracking, status, location)
-    )
+    c.execute("""
+        INSERT INTO history (tracking, status, location)
+        VALUES (?, ?, ?)
+    """, (tracking, status, location))
 
     conn.commit()
     conn.close()
 
-    return redirect("/dashboard")
+    return redirect("/admin-dashboard")
 
-
-# ---------- TRACK ----------
-@app.route("/track", methods=["POST"])
-def track():
-    code = request.form.get("tracking")
-
-    conn = db()
-    c = conn.cursor()
-
-    c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
-    result = c.fetchone()
-
-    c.execute(
-        "SELECT status, location, date FROM history WHERE tracking=? ORDER BY id DESC",
-        (code,)
-    )
-    history = c.fetchall()
-
-    conn.close()
-
-    return render_template("tracking.html", result=result, history=history)
-
-
-# ---------- LOGOUT ----------
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
-
+# ======================
+# RUN
+# ======================
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)
