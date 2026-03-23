@@ -69,6 +69,20 @@ def create():
 
     tracking = generate_tracking()
 
+    # SAFE INPUTS (no crashes even if empty)
+    status = request.form.get("status", "Processing")
+    location = request.form.get("location", "Unknown")
+
+    sender = request.form.get("sender", "")
+    receiver = request.form.get("receiver", "")
+    sender_address = request.form.get("sender_address", "")
+    receiver_address = request.form.get("receiver_address", "")
+    weight = request.form.get("weight", "")
+    size = request.form.get("size", "")
+    description = request.form.get("description", "")
+    fee = request.form.get("fee", "")
+    delivery_date = request.form.get("delivery_date", "")
+
     conn = db()
     c = conn.cursor()
 
@@ -79,19 +93,22 @@ def create():
         weight,size,description,fee,delivery_date
     ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
     """, (
-        tracking,
-        request.form.get("status"),
-        request.form.get("location"),
-        request.form.get("sender"),
-        request.form.get("receiver"),
-        request.form.get("sender_address"),
-        request.form.get("receiver_address"),
-        request.form.get("weight"),
-        request.form.get("size"),
-        request.form.get("description"),
-        request.form.get("fee"),
-        request.form.get("delivery_date")
+        tracking, status, location,
+        sender, receiver,
+        sender_address, receiver_address,
+        weight, size, description,
+        fee, delivery_date
     ))
+
+    c.execute(
+        "INSERT INTO history(tracking,status,location) VALUES(?,?,?)",
+        (tracking, status, location)
+    )
+
+    conn.commit()
+    conn.close()
+
+    return redirect("/dashboard")
 
     # HISTORY
     c.execute(
