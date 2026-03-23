@@ -4,12 +4,29 @@
 <h2>Dashboard</h2>
 
 <div class="card">
-<h3>Create Shipment</h3>
+<h2>Create Shipment</h2>
 
-<form action="/create" method="POST">
-<input name="status" placeholder="Status (In Transit)" required>
-<input name="location" placeholder="Location (London)" required>
-<button>Create</button>
+<form action="/create" method="POST" class="grid">
+
+<input name="status" placeholder="Status (In Transit)">
+<input name="location" placeholder="Current Location">
+
+<input name="sender" placeholder="Sender Name">
+<input name="receiver" placeholder="Receiver Name">
+
+<input name="sender_address" placeholder="Sender Address">
+<input name="receiver_address" placeholder="Receiver Address">
+
+<input name="weight" placeholder="Weight (kg)">
+<input name="size" placeholder="Package Size">
+
+<input name="fee" placeholder="Delivery Fee ($)">
+<input name="delivery_date" placeholder="Delivery Date">
+
+<textarea name="description" placeholder="Shipment Description"></textarea>
+
+<button>Create Shipment</button>
+
 </form>
 </div>
 
