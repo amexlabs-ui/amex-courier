@@ -5,17 +5,76 @@ app = Flask(__name__)
 app.secret_key = "amex_secure_key"
 
 
-# ---------- INIT DB ----------
-if not os.path.exists("database.db"):
-    import create_db
+# ✅ DATABASE PATH (PERSISTENT STORAGE)
+DB_PATH = "/data/database.db"
 
 
+# ---------- DATABASE CONNECTION ----------
 def db():
-    return sqlite3.connect("database.db")
+    return sqlite3.connect(DB_PATH)
 
 
+# ---------- INIT DATABASE IF NOT EXISTS ----------
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+
+    # ADMIN TABLE
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS admin(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT,
+        password TEXT
+    )
+    """)
+
+    # DEFAULT ADMIN
+    c.execute("SELECT * FROM admin")
+    if not c.fetchone():
+        c.execute("INSERT INTO admin(username,password) VALUES('admin','admin123')")
+
+    # SHIPMENTS TABLE
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS shipments(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tracking TEXT,
+        status TEXT,
+        location TEXT,
+        sender TEXT,
+        receiver TEXT,
+        sender_address TEXT,
+        receiver_address TEXT,
+        weight TEXT,
+        size TEXT,
+        description TEXT,
+        fee TEXT,
+        delivery_date TEXT
+    )
+    """)
+
+    # HISTORY TABLE
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS history(
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        tracking TEXT,
+        status TEXT,
+        location TEXT,
+        date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+
+# RUN INIT
+if not os.path.exists(DB_PATH):
+    init_db()
+
+
+# ---------- GENERATE TRACKING ----------
 def generate_tracking():
-    return "AMX" + str(random.randint(100000,999999))
+    return "AMX" + str(random.randint(100000, 999999))
 
 
 # ---------- HOME ----------
@@ -61,7 +120,7 @@ def dashboard():
     return render_template("dashboard.html", data=data)
 
 
-# ---------- CREATE ----------
+# ---------- CREATE SHIPMENT ----------
 @app.route("/create", methods=["POST"])
 def create():
     if not session.get("admin"):
@@ -69,7 +128,6 @@ def create():
 
     tracking = generate_tracking()
 
-    # SAFE INPUTS (no crashes even if empty)
     status = request.form.get("status", "Processing")
     location = request.form.get("location", "Unknown")
 
@@ -100,20 +158,10 @@ def create():
         fee, delivery_date
     ))
 
+    # HISTORY LOG
     c.execute(
         "INSERT INTO history(tracking,status,location) VALUES(?,?,?)",
         (tracking, status, location)
-    )
-
-    conn.commit()
-    conn.close()
-
-    return redirect("/dashboard")
-
-    # HISTORY
-    c.execute(
-        "INSERT INTO history(tracking,status,location) VALUES(?,?,?)",
-        (tracking, request.form.get("status"), request.form.get("location"))
     )
 
     conn.commit()
