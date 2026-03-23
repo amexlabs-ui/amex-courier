@@ -73,3 +73,15 @@ border-color:#0a4abf;
 color:#0a4abf;
 font-weight:bold;
 }
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:15px;
+}
+
+textarea{
+grid-column: span 2;
+padding:10px;
+border-radius:6px;
+}
