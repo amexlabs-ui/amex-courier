@@ -8,11 +8,14 @@ CREATE TABLE IF NOT EXISTS shipments(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 tracking TEXT UNIQUE,
 status TEXT,
-location TEXT
+location TEXT,
+sender TEXT,
+receiver TEXT,
+weight TEXT,
+fee TEXT
 )
 """)
 
-# CREATE DEFAULT ADMIN
 c.execute("""
 CREATE TABLE IF NOT EXISTS admin(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,9 +24,10 @@ password TEXT
 )
 """)
 
+# CREATE ADMIN SAFELY
 c.execute("SELECT * FROM admin WHERE username='admin'")
 if not c.fetchone():
-    c.execute("INSERT INTO admin(username,password) VALUES('admin','1234')")
+    c.execute("INSERT INTO admin(username,password) VALUES('admin','1974')")
 
 conn.commit()
 conn.close()
