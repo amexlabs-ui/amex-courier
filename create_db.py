@@ -3,31 +3,50 @@ import sqlite3
 conn = sqlite3.connect("database.db")
 c = conn.cursor()
 
+# ADMIN TABLE
 c.execute("""
-CREATE TABLE IF NOT EXISTS shipments(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-tracking TEXT UNIQUE,
-status TEXT,
-location TEXT,
-sender TEXT,
-receiver TEXT,
-weight TEXT,
-fee TEXT
-)
-""")
-
-c.execute("""
-CREATE TABLE IF NOT EXISTS admin(
+CREATE TABLE admin(
 id INTEGER PRIMARY KEY AUTOINCREMENT,
 username TEXT,
 password TEXT
 )
 """)
 
-# CREATE ADMIN SAFELY
-c.execute("SELECT * FROM admin WHERE username='admin'")
-if not c.fetchone():
-    c.execute("INSERT INTO admin(username,password) VALUES('admin','1974')")
+# DEFAULT ADMIN LOGIN
+c.execute("INSERT INTO admin(username,password) VALUES('admin','admin123')")
+
+
+# SHIPMENTS TABLE (UPDATED STRUCTURE)
+c.execute("""
+CREATE TABLE shipments(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+tracking TEXT,
+status TEXT,
+location TEXT,
+sender TEXT,
+receiver TEXT,
+sender_address TEXT,
+receiver_address TEXT,
+weight TEXT,
+size TEXT,
+description TEXT,
+fee TEXT,
+delivery_date TEXT
+)
+""")
+
+# HISTORY TABLE
+c.execute("""
+CREATE TABLE history(
+id INTEGER PRIMARY KEY AUTOINCREMENT,
+tracking TEXT,
+status TEXT,
+location TEXT,
+date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
 
 conn.commit()
 conn.close()
+
+print("Database created successfully")
