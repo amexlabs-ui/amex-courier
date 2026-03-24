@@ -1,40 +1,17 @@
-{% extends "base.html" %}
-{% block content %}
-
-<div class="card">
-
-{% if result %}
-
-<h2>Tracking: {{ result[1] }}</h2>
-
-{% set s = result[2] %}
-
-{% if s == "Delivered" %}
-<span class="status green">Delivered</span>
-{% elif s == "On Delivery" %}
-<span class="status blue">On Delivery</span>
-{% elif s == "In Transit" %}
-<span class="status orange">In Transit</span>
-{% elif s == "Canceled" %}
-<span class="status red">Canceled</span>
-{% else %}
-<span class="status gray">Processing</span>
-{% endif %}
-
-<div class="details">
-<div class="box">Location: {{ result[3] }}</div>
-<div class="box">Sender: {{ result[4] }}</div>
-<div class="box">Receiver: {{ result[5] }}</div>
-<div class="box">Weight: {{ result[8] }}</div>
-<div class="box">Fee: ${{ result[11] }}</div>
-</div>
-
 <h3>Map</h3>
 
-{% if result[3] %}
-<iframe width="100%" height="300"
-src="https://maps.google.com/maps?q={{ result[3] }}&output=embed">
+{% if shipment %}
+<iframe
+    width="100%"
+    height="300"
+    style="border:0"
+    loading="lazy"
+    allowfullscreen
+    src="https://www.google.com/maps?q={{ shipment[3] }}&output=embed">
 </iframe>
+{% else %}
+<p>No location available</p>
+{% endif %}</iframe>
 {% else %}
 <p>No location available</p>
 {% endif %}
