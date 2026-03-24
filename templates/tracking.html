@@ -1,36 +1,33 @@
-<h3>Map</h3>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-{% if shipment %}
-<iframe
-    width="100%"
-    height="300"
-    style="border:0"
-    loading="lazy"
-    allowfullscreen
-    src="https://www.google.com/maps?q={{ shipment[3] }}&output=embed">
-</iframe>
-{% else %}
-<p>No location available</p>
-{% endif %}</iframe>
-{% else %}
-<p>No location available</p>
-{% endif %}
+<div id="map" style="height:400px;"></div>
 
-<h3>Shipment History</h3>
+<script>
+var map = L.map('map').setView([{{ shipment.lat }}, {{ shipment.lng }}], 5);
 
-<div class="timeline">
-{% for h in history %}
-<div class="timeline-item">
-<b>{{ h[0] }}</b> - {{ h[1] }} <br>
-<small>{{ h[2] }}</small>
-</div>
-{% endfor %}
-</div>
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
 
-{% else %}
-<p>No tracking found</p>
-{% endif %}
+// Route line
+var route = [
+    {% for h in history %}
+    [{{ h.lat }}, {{ h.lng }}],
+    {% endfor %}
+];
 
-</div>
+var polyline = L.polyline(route, {color: 'blue'}).addTo(map);
+map.fitBounds(polyline.getBounds());
 
-{% endblock %}
+// Moving marker simulation
+var marker = L.marker(route[0]).addTo(map);
+let i = 0;
+
+function move() {
+    if (i < route.length) {
+        marker.setLatLng(route[i]);
+        i++;
+        setTimeout(move, 1500);
+    }
+}
+move();
+</script>
