@@ -1,43 +1,173 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard</title>
+<title>Amex Courier Admin</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #f4f6f9;
+}
+
+.header {
+    background: #0d6efd;
+    color: white;
+    padding: 15px;
+    font-size: 20px;
+}
+
+.container {
+    padding: 20px;
+}
+
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+input, select {
+    padding: 10px;
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+}
+
+button {
+    padding: 12px;
+    background: #0d6efd;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #084298;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    font-size: 12px;
+}
+
+.delivered { background: #28a745; }
+.in-transit { background: orange; }
+.on-delivery { background: #0d6efd; }
+.canceled { background: red; }
+
+</style>
 </head>
+
 <body>
 
-<h2>Create Shipment</h2>
+<div class="header">🚚 Amex Courier Admin Dashboard</div>
 
-<form action="/create" method="POST">
-    <input name="sender" placeholder="Sender"><br>
-    <input name="receiver" placeholder="Receiver"><br>
-    <input name="weight" placeholder="Weight"><br>
-    <input name="fee" placeholder="Fee"><br>
-    <input name="description" placeholder="Description"><br>
-    <input name="status" placeholder="Status"><br>
-    <input name="location" placeholder="Location"><br>
-    <input name="lat" placeholder="Latitude"><br>
-    <input name="lng" placeholder="Longitude"><br>
-    <button>Create</button>
+<div class="container">
+
+<!-- CREATE SHIPMENT -->
+<div class="card">
+<h3>Create Shipment</h3>
+
+<form action="/create" method="POST" class="grid">
+
+<input name="sender" placeholder="Sender Name">
+<input name="receiver" placeholder="Receiver Name">
+<input name="weight" placeholder="Weight (kg)">
+
+<input name="fee" placeholder="Delivery Fee ($)">
+<input name="description" placeholder="Package Description">
+<input name="location" placeholder="Current Location">
+
+<input name="lat" placeholder="Latitude (e.g. 51.5074)">
+<input name="lng" placeholder="Longitude (e.g. -0.1278)">
+
+<select name="status">
+<option>Processing</option>
+<option>In Transit</option>
+<option>On Delivery</option>
+<option>Delivered</option>
+<option>Canceled</option>
+</select>
+
+<button style="grid-column: span 3;">Create Shipment</button>
+
 </form>
+</div>
 
-<hr>
+<!-- SHIPMENTS TABLE -->
+<div class="card">
+<h3>All Shipments</h3>
 
-<h2>All Shipments</h2>
+<table>
+<tr>
+<th>Tracking</th>
+<th>Status</th>
+<th>Location</th>
+<th>Update</th>
+</tr>
 
 {% for s in shipments %}
-<div>
-    <b>{{ s.tracking }}</b> - {{ s.status }} - {{ s.location }}
+<tr>
+<td>{{ s.tracking }}</td>
 
-    <form action="/update/{{ s.tracking }}" method="POST">
-        <input name="status" placeholder="New Status">
-        <input name="location" placeholder="New Location">
-        <input name="lat" placeholder="Lat">
-        <input name="lng" placeholder="Lng">
-        <button>Update</button>
-    </form>
-</div>
-<hr>
+<td>
+<span class="status {{ s.status|lower|replace(' ','-') }}">
+{{ s.status }}
+</span>
+</td>
+
+<td>{{ s.location }}</td>
+
+<td>
+<form action="/update/{{ s.tracking }}" method="POST" style="display:flex; gap:5px;">
+
+<select name="status">
+<option>Processing</option>
+<option>In Transit</option>
+<option>On Delivery</option>
+<option>Delivered</option>
+<option>Canceled</option>
+</select>
+
+<input name="location" placeholder="New Location">
+<input name="lat" placeholder="Lat">
+<input name="lng" placeholder="Lng">
+
+<button>Update</button>
+
+</form>
+</td>
+
+</tr>
 {% endfor %}
+
+</table>
+
+</div>
+
+</div>
 
 </body>
 </html>
