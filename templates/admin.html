@@ -1,14 +1,43 @@
-@app.route("/admin")
-def admin():
-    if not session.get("admin"):
-        return redirect("/login")
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Dashboard</title>
+</head>
+<body>
 
-    try:
-        conn = get_db()
-        shipments = conn.execute("SELECT * FROM shipments").fetchall()
-        conn.close()
+<h2>Create Shipment</h2>
 
-        return render_template("admin.html", shipments=shipments)
+<form action="/create" method="POST">
+    <input name="sender" placeholder="Sender"><br>
+    <input name="receiver" placeholder="Receiver"><br>
+    <input name="weight" placeholder="Weight"><br>
+    <input name="fee" placeholder="Fee"><br>
+    <input name="description" placeholder="Description"><br>
+    <input name="status" placeholder="Status"><br>
+    <input name="location" placeholder="Location"><br>
+    <input name="lat" placeholder="Latitude"><br>
+    <input name="lng" placeholder="Longitude"><br>
+    <button>Create</button>
+</form>
 
-    except Exception as e:
-        return f"ADMIN ERROR: {str(e)}"
+<hr>
+
+<h2>All Shipments</h2>
+
+{% for s in shipments %}
+<div>
+    <b>{{ s.tracking }}</b> - {{ s.status }} - {{ s.location }}
+
+    <form action="/update/{{ s.tracking }}" method="POST">
+        <input name="status" placeholder="New Status">
+        <input name="location" placeholder="New Location">
+        <input name="lat" placeholder="Lat">
+        <input name="lng" placeholder="Lng">
+        <button>Update</button>
+    </form>
+</div>
+<hr>
+{% endfor %}
+
+</body>
+</html>
