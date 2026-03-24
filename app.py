@@ -111,65 +111,52 @@ def create():
     if not session.get("admin"):
         return redirect("/login")
 
-    tracking = "AMX" + str(random.randint(100000, 999999))
+    try:
+        tracking = "AMX" + str(random.randint(100000, 999999))
 
-    data = (
-        tracking,
-        request.form["status"],
-        request.form["location"],
-        float(request.form["lat"]),
-        float(request.form["lng"]),
-        request.form["sender"],
-        request.form["receiver"],
-        request.form["weight"],
-        request.form["fee"],
-        request.form["description"]
-    )
+        # SAFE INPUTS
+        status = request.form.get("status", "Processing")
+        location = request.form.get("location", "Unknown")
+        sender = request.form.get("sender", "")
+        receiver = request.form.get("receiver", "")
+        weight = request.form.get("weight", "")
+        fee = request.form.get("fee", "")
+        description = request.form.get("description", "")
+        delivery_address = request.form.get("delivery_address", "")
 
-    conn = get_db()
+        # SAFE FLOAT CONVERSION
+        try:
+            lat = float(request.form.get("lat", 0))
+            lng = float(request.form.get("lng", 0))
+        except:
+            lat = 0
+            lng = 0
 
-    conn.execute("""
-    INSERT INTO shipments (tracking, status, location, lat, lng, sender, receiver, weight, fee, description)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    """, data)
+        conn = get_db()
 
-    conn.execute("""
-    INSERT INTO history (tracking, status, location, lat, lng, time)
-    VALUES (?, ?, ?, ?, ?, ?)
-    """, (tracking, data[1], data[2], data[3], data[4], datetime.now()))
+        conn.execute("""
+        INSERT INTO shipments (
+            tracking, status, location, lat, lng,
+            sender, receiver, weight, fee, description, delivery_address
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
+            tracking, status, location, lat, lng,
+            sender, receiver, weight, fee, description, delivery_address
+        ))
 
-    conn.commit()
-    conn.close()
+        conn.execute("""
+        INSERT INTO history (tracking, status, location, lat, lng, time)
+        VALUES (?, ?, ?, ?, ?, datetime('now'))
+        """, (tracking, status, location, lat, lng))
 
-    return redirect("/admin")
+        conn.commit()
+        conn.close()
 
+        return redirect("/admin")
 
-# ---------- UPDATE ----------
-@app.route("/update/<tracking>", methods=["POST"])
-def update(tracking):
-    if not session.get("admin"):
-        return redirect("/login")
-
-    status = request.form["status"]
-    location = request.form["location"]
-    lat = float(request.form["lat"])
-    lng = float(request.form["lng"])
-
-    conn = get_db()
-
-    conn.execute("""
-    UPDATE shipments SET status=?, location=?, lat=?, lng=? WHERE tracking=?
-    """, (status, location, lat, lng, tracking))
-
-    conn.execute("""
-    INSERT INTO history (tracking, status, location, lat, lng, time)
-    VALUES (?, ?, ?, ?, ?, ?)
-    """, (tracking, status, location, lat, lng, datetime.now()))
-
-    conn.commit()
-    conn.close()
-
-    return redirect("/admin")
+    except Exception as e:
+        return f"CREATE ERROR: {str(e)}"
 
 
 # ---------- LOGOUT ----------
