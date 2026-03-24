@@ -75,17 +75,21 @@ def track():
 # ---------- LOGIN ----------
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+    try:
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-        if username == "admin" and password == "admin123":
-            session["admin"] = True
-            return redirect("/admin")
-        else:
-            return "Invalid login"
+            if username == "admin" and password == "admin123":
+                session["admin"] = True
+                return redirect("/admin")
+            else:
+                return "Invalid login"
 
-    return render_template("login.html")
+        return render_template("login.html")
+
+    except Exception as e:
+        return f"Login error: {str(e)}"
 
 
 # ---------- ADMIN ----------
