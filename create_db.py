@@ -2,6 +2,7 @@ import sqlite3
 
 conn = sqlite3.connect("database.db")
 c = conn.cursor()
+conn = sqlite3.connect("database.db", check_same_thread=False)
 
 # ADMIN TABLE
 c.execute("""
