@@ -18,20 +18,19 @@ c.execute("INSERT INTO admin(username,password) VALUES('admin','admin123')")
 
 # SHIPMENTS TABLE (UPDATED STRUCTURE)
 c.execute("""
-CREATE TABLE shipments(
-id INTEGER PRIMARY KEY AUTOINCREMENT,
-tracking TEXT,
-status TEXT,
-location TEXT,
-sender TEXT,
-receiver TEXT,
-sender_address TEXT,
-receiver_address TEXT,
-weight TEXT,
-size TEXT,
-description TEXT,
-fee TEXT,
-delivery_date TEXT
+CREATE TABLE IF NOT EXISTS shipments (
+    id INTEGER PRIMARY KEY,
+    tracking TEXT UNIQUE,
+    status TEXT,
+    location TEXT,
+    lat REAL,
+    lng REAL,
+    sender TEXT,
+    receiver TEXT,
+    weight TEXT,
+    fee TEXT,
+    description TEXT,
+    delivery_address TEXT
 )
 """)
 
