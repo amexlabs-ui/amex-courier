@@ -1,7 +1,12 @@
 import sqlite3
 
-conn = sqlite3.connect("database.db", check_same_thread=False)
+conn = sqlite3.connect("database.db")
 c = conn.cursor()
+
+c.execute("ALTER TABLE shipments ADD COLUMN delivery_address TEXT")
+
+conn.commit()
+conn.close()
 
 # ADMIN TABLE
 c.execute("""
