@@ -94,19 +94,17 @@ def login():
 # ======================
 # DASHBOARD
 # ======================
-@app.route("/admin-dashboard")
-def dashboard():
-    if not session.get("admin"):
-        return redirect("/secure-admin-login-amex")
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-    conn = sqlite3.connect("database.db")
-    c = conn.cursor()
+        if username == "admin" and password == "admin123":
+            session["admin"] = True
+            return redirect("/admin-dashboard")
 
-    shipments = c.execute("SELECT * FROM shipments").fetchall()
-    conn.close()
-
-    return render_template("dashboard.html", shipments=shipments)
-
+    return render_template("login.html")
 # ======================
 # CREATE SHIPMENT
 # ======================
