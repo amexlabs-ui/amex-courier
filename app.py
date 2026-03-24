@@ -79,11 +79,11 @@ def track():
 # ======================
 # ADMIN LOGIN
 # ======================
-@app.route("/secure-admin-login-amex", methods=["GET", "POST"])
-def admin_login():
+@app.route("/login", methods=["GET", "POST"])
+def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        username = request.form.get("username")
+        password = request.form.get("password")
 
         if username == "admin" and password == "admin123":
             session["admin"] = True
