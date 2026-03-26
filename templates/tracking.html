@@ -3,25 +3,44 @@
 <head>
 <title>Tracking</title>
 <link rel="stylesheet" href="/static/style.css">
+
+<!-- LEAFLET MAP -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+
 </head>
 <body>
 
 {% if shipment %}
+
+<div class="card">
 <h2>Tracking: {{ shipment[1] }}</h2>
 
 <p>Status: {{ shipment[2] }}</p>
 <p>Location: {{ shipment[3] }}</p>
-<p>Sender: {{ shipment[4] }}</p>
 <p>Receiver: {{ shipment[5] }}</p>
-<p>Weight: {{ shipment[6] }}</p>
-<p>Fee: {{ shipment[7] }}</p>
-<p>Description: {{ shipment[8] }}</p>
-<p>Delivery Address: {{ shipment[9] }}</p>
+<p>Address: {{ shipment[9] }}</p>
+
+<div id="map"></div>
 
 <h3>History</h3>
 {% for h in history %}
 <p>{{ h[0] }} - {{ h[1] }} ({{ h[2] }})</p>
 {% endfor %}
+
+</div>
+
+<script>
+var map = L.map('map').setView([51.505, -0.09], 5);
+
+L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+}).addTo(map);
+
+L.marker([51.505, -0.09]).addTo(map)
+    .bindPopup('Current Location')
+    .openPopup();
+</script>
 
 {% else %}
 <p>No tracking found</p>
