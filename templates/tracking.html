@@ -1,33 +1,31 @@
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<!DOCTYPE html>
+<html>
+<head>
+<title>Tracking</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
 
-<div id="map" style="height:400px;"></div>
+{% if shipment %}
+<h2>Tracking: {{ shipment[1] }}</h2>
 
-<script>
-var map = L.map('map').setView([{{ shipment.lat }}, {{ shipment.lng }}], 5);
+<p>Status: {{ shipment[2] }}</p>
+<p>Location: {{ shipment[3] }}</p>
+<p>Sender: {{ shipment[4] }}</p>
+<p>Receiver: {{ shipment[5] }}</p>
+<p>Weight: {{ shipment[6] }}</p>
+<p>Fee: {{ shipment[7] }}</p>
+<p>Description: {{ shipment[8] }}</p>
+<p>Delivery Address: {{ shipment[9] }}</p>
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+<h3>History</h3>
+{% for h in history %}
+<p>{{ h[0] }} - {{ h[1] }} ({{ h[2] }})</p>
+{% endfor %}
 
-// Route line
-var route = [
-    {% for h in history %}
-    [{{ h.lat }}, {{ h.lng }}],
-    {% endfor %}
-];
+{% else %}
+<p>No tracking found</p>
+{% endif %}
 
-var polyline = L.polyline(route, {color: 'blue'}).addTo(map);
-map.fitBounds(polyline.getBounds());
-
-// Moving marker simulation
-var marker = L.marker(route[0]).addTo(map);
-let i = 0;
-
-function move() {
-    if (i < route.length) {
-        marker.setLatLng(route[i]);
-        i++;
-        setTimeout(move, 1500);
-    }
-}
-move();
-</script>
+</body>
+</html>
