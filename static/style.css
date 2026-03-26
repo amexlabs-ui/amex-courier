@@ -1,50 +1,97 @@
 body {
-    font-family: Arial;
     margin: 0;
-    background: #f4f6f9;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f5f7fa;
 }
 
-.header {
-    background: #1e3c72;
-    color: white;
-    padding: 20px;
-    text-align: center;
-}
-
-.container {
-    width: 90%;
-    margin: auto;
-    margin-top: 30px;
-}
-
-.card {
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 40px;
     background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-input, select {
-    padding: 10px;
-    margin: 5px;
-    width: 200px;
+.logo {
+    font-size: 22px;
+    font-weight: bold;
+    color: #1e3c72;
 }
 
-button {
-    padding: 10px 15px;
+.nav-links a {
+    margin-left: 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.login-btn {
     background: #1e3c72;
+    color: white !important;
+    padding: 8px 14px;
+    border-radius: 5px;
+}
+
+/* HERO */
+.hero {
+    height: 80vh;
+    background: linear-gradient(rgba(30,60,114,0.85), rgba(30,60,114,0.85)),
+                url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d');
+    background-size: cover;
+    background-position: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
     color: white;
+}
+
+.hero h1 {
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 30px;
+}
+
+/* TRACK BOX */
+.track-box {
+    display: flex;
+    justify-content: center;
+}
+
+.track-box input {
+    padding: 14px;
+    width: 300px;
     border: none;
+    outline: none;
+}
+
+.track-box button {
+    padding: 14px 20px;
+    background: #ff6b00;
+    border: none;
+    color: white;
     cursor: pointer;
 }
 
-.status {
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: white;
+/* FEATURES */
+.features {
+    display: flex;
+    justify-content: space-around;
+    padding: 50px 20px;
+    background: white;
 }
 
-.in-transit { background: orange; }
-.delivered { background: green; }
-.cancelled { background: red; }
+.feature {
+    width: 30%;
+    text-align: center;
+}
+
+.feature h3 {
+    color: #1e3c72;
+}
