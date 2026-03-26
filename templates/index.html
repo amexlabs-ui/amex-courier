@@ -1,15 +1,49 @@
-<link rel="stylesheet" href="/static/style.css">
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Amex Courier</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
 
-<div class="header">
-    <h1>Amex Courier</h1>
-    <p>Fast • Secure • Worldwide Delivery</p>
+<body>
+
+<!-- NAVBAR -->
+<div class="navbar">
+    <div class="logo">Amex Courier</div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/login" class="login-btn">Admin Login</a>
+    </div>
 </div>
 
-<div class="container">
-    <div class="card">
-        <form method="POST">
-            <input name="tracking" placeholder="Enter Tracking Code">
-            <button>Track Package</button>
+<!-- HERO SECTION -->
+<div class="hero">
+    <div class="hero-content">
+        <h1>Global Shipping & Logistics</h1>
+        <p>Fast • Secure • Reliable Delivery Worldwide</p>
+
+        <form method="POST" class="track-box">
+            <input name="tracking" placeholder="Enter Tracking Number (e.g. AMX123456)" required>
+            <button type="submit">Track Shipment</button>
         </form>
     </div>
 </div>
+
+<!-- FEATURES -->
+<div class="features">
+    <div class="feature">
+        <h3>Fast Delivery</h3>
+        <p>Express worldwide shipping with real-time updates.</p>
+    </div>
+    <div class="feature">
+        <h3>Secure Handling</h3>
+        <p>Your packages are handled with maximum care.</p>
+    </div>
+    <div class="feature">
+        <h3>Live Tracking</h3>
+        <p>Track your shipment anytime from anywhere.</p>
+    </div>
+</div>
+
+</body>
+</html>
