@@ -1,41 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Dashboard</title>
 <link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
 
-<h2>Create Shipment</h2>
+<div class="container">
 
-<form action="/create" method="POST" class="grid">
-<input name="status" placeholder="Status" required>
-<input name="location" placeholder="Location" required>
+<div class="card">
+<h3>Create Shipment</h3>
+<form method="POST">
 <input name="sender" placeholder="Sender">
 <input name="receiver" placeholder="Receiver">
+<input name="address" placeholder="Delivery Address">
+<input name="location" placeholder="Current Location">
 <input name="weight" placeholder="Weight">
 <input name="fee" placeholder="Fee">
-<input name="description" placeholder="Description">
-<input name="delivery_address" placeholder="Delivery Address">
-<button>Create Shipment</button>
+<select name="status">
+<option>In Transit</option>
+<option>Delivered</option>
+<option>Cancelled</option>
+</select>
+<button>Create</button>
 </form>
+</div>
 
-<hr>
-
-<h2>Shipments</h2>
+<div class="card">
+<h3>All Shipments</h3>
 
 {% for s in shipments %}
-<div class="card">
-<b>{{ s[1] }}</b> - {{ s[2] }} - {{ s[3] }}
-
-<form action="/update" method="POST">
-<input type="hidden" name="code" value="{{ s[1] }}">
-<input name="status" placeholder="Update Status">
-<input name="location" placeholder="Update Location">
-<button>Update</button>
-</form>
+<div>
+<strong>{{ s[1] }}</strong> - {{ s[2] }} → {{ s[3] }}
+<span class="status in-transit">{{ s[5] }}</span>
 </div>
 {% endfor %}
 
-</body>
-</html>
+</div>
+
+</div>
