@@ -1,59 +1,42 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
 
-<h2>Dashboard</h2>
-
-<div class="card">
 <h2>Create Shipment</h2>
 
-<form action="/create" method="POST" class="grid">
-
-<input name="status" placeholder="Status (In Transit)">
-<input name="location" placeholder="Current Location">
-
-<input name="sender" placeholder="Sender Name">
-<input name="receiver" placeholder="Receiver Name">
-
-<input name="sender_address" placeholder="Sender Address">
-<input name="receiver_address" placeholder="Receiver Address">
-
-<input name="weight" placeholder="Weight (kg)">
-<input name="size" placeholder="Package Size">
-
-<input name="fee" placeholder="Delivery Fee ($)">
-<input name="delivery_date" placeholder="Delivery Date">
-
-<textarea name="description" placeholder="Shipment Description"></textarea>
-
-<button>Create Shipment</button>
-
+<form action="/create" method="POST">
+    <input name="status" placeholder="Status" required>
+    <input name="location" placeholder="Location" required>
+    <input name="sender" placeholder="Sender">
+    <input name="receiver" placeholder="Receiver">
+    <input name="weight" placeholder="Weight">
+    <input name="fee" placeholder="Fee">
+    <input name="description" placeholder="Description">
+    <input name="delivery_address" placeholder="Delivery Address">
+    <button>Create</button>
 </form>
+
+<hr>
+
+<h2>Shipments</h2>
+
+{% for s in shipments %}
+<div>
+    <b>{{ s[1] }}</b> - {{ s[2] }} - {{ s[3] }}
+
+    <form action="/update" method="POST">
+        <input type="hidden" name="code" value="{{ s[1] }}">
+        <input name="status" placeholder="New Status">
+        <input name="location" placeholder="New Location">
+        <button>Update</button>
+    </form>
 </div>
-
-<table>
-<tr>
-<th>Tracking</th>
-<th>Status</th>
-<th>Location</th>
-<th>Update</th>
-</tr>
-
-{% for row in data %}
-<tr>
-<td>{{ row[1] }}</td>
-<td>{{ row[2] }}</td>
-<td>{{ row[3] }}</td>
-
-<td>
-<form action="/update/{{ row[1] }}" method="POST">
-<input name="status" placeholder="New Status" required>
-<input name="location" placeholder="New Location" required>
-<button>Update</button>
-</form>
-</td>
-
-</tr>
+<hr>
 {% endfor %}
-</table>
 
-{% endblock %}
+</body>
+</html>
