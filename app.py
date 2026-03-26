@@ -1,16 +1,13 @@
 from flask import Flask, render_template, request, redirect, session
 import sqlite3
-import os
 import random
 
 app = Flask(__name__)
-app.secret_key = "secret123"
+app.secret_key = "supersecretkey"
 
 DB = "database.db"
 
-# -------------------------
-# DATABASE SETUP (AUTO FIX)
-# -------------------------
+# ------------------ DB INIT ------------------
 def init_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
@@ -45,53 +42,39 @@ def init_db():
 
 init_db()
 
-# -------------------------
-# GENERATE TRACKING CODE
-# -------------------------
+# ------------------ GENERATE CODE ------------------
 def generate_code():
     return "AMX" + str(random.randint(100000, 999999))
 
-# -------------------------
-# HOME
-# -------------------------
+# ------------------ HOME ------------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# -------------------------
-# LOGIN (HIDDEN ADMIN)
-# -------------------------
-@app.route("/secure-admin-login", methods=["GET", "POST"])
+# ------------------ LOGIN ------------------
+@app.route("/admin-secure-portal", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
-
-        if username == "admin" and password == "admin123":
+        if request.form["username"] == "admin" and request.form["password"] == "admin123":
             session["admin"] = True
             return redirect("/dashboard")
-
     return render_template("login.html")
 
-# -------------------------
-# DASHBOARD
-# -------------------------
+# ------------------ DASHBOARD ------------------
 @app.route("/dashboard")
 def dashboard():
     if not session.get("admin"):
-        return redirect("/secure-admin-login")
+        return redirect("/admin-secure-portal")
 
     conn = sqlite3.connect(DB)
     c = conn.cursor()
     c.execute("SELECT * FROM shipments")
-    data = c.fetchall()
+    shipments = c.fetchall()
     conn.close()
 
-    return render_template("dashboard.html", shipments=data)
+    return render_template("dashboard.html", shipments=shipments)
 
-# -------------------------
-# CREATE SHIPMENT
-# -------------------------
+# ------------------ CREATE ------------------
 @app.route("/create", methods=["POST"])
 def create():
     try:
@@ -100,7 +83,11 @@ def create():
 
         code = generate_code()
 
-        data = (
+        c.execute("""
+        INSERT INTO shipments 
+        (tracking_code, status, location, sender, receiver, weight, fee, description, delivery_address)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (
             code,
             request.form["status"],
             request.form["location"],
@@ -110,13 +97,7 @@ def create():
             request.form["fee"],
             request.form["description"],
             request.form["delivery_address"]
-        )
-
-        c.execute("""
-        INSERT INTO shipments 
-        (tracking_code, status, location, sender, receiver, weight, fee, description, delivery_address)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, data)
+        ))
 
         c.execute("""
         INSERT INTO history (tracking_code, status, location)
@@ -131,9 +112,7 @@ def create():
     except Exception as e:
         return f"CREATE ERROR: {e}"
 
-# -------------------------
-# UPDATE SHIPMENT
-# -------------------------
+# ------------------ UPDATE ------------------
 @app.route("/update", methods=["POST"])
 def update():
     conn = sqlite3.connect(DB)
@@ -154,9 +133,7 @@ def update():
 
     return redirect("/dashboard")
 
-# -------------------------
-# TRACK PAGE
-# -------------------------
+# ------------------ TRACK ------------------
 @app.route("/track", methods=["POST"])
 def track():
     code = request.form["code"]
@@ -174,8 +151,6 @@ def track():
 
     return render_template("track.html", shipment=shipment, history=history)
 
-# -------------------------
-# RUN
-# -------------------------
+# ------------------ RUN ------------------
 if __name__ == "__main__":
     app.run(debug=True)
