@@ -8,16 +8,16 @@
 
 <h2>Create Shipment</h2>
 
-<form action="/create" method="POST">
-    <input name="status" placeholder="Status" required>
-    <input name="location" placeholder="Location" required>
-    <input name="sender" placeholder="Sender">
-    <input name="receiver" placeholder="Receiver">
-    <input name="weight" placeholder="Weight">
-    <input name="fee" placeholder="Fee">
-    <input name="description" placeholder="Description">
-    <input name="delivery_address" placeholder="Delivery Address">
-    <button>Create</button>
+<form action="/create" method="POST" class="grid">
+<input name="status" placeholder="Status" required>
+<input name="location" placeholder="Location" required>
+<input name="sender" placeholder="Sender">
+<input name="receiver" placeholder="Receiver">
+<input name="weight" placeholder="Weight">
+<input name="fee" placeholder="Fee">
+<input name="description" placeholder="Description">
+<input name="delivery_address" placeholder="Delivery Address">
+<button>Create Shipment</button>
 </form>
 
 <hr>
@@ -25,17 +25,16 @@
 <h2>Shipments</h2>
 
 {% for s in shipments %}
-<div>
-    <b>{{ s[1] }}</b> - {{ s[2] }} - {{ s[3] }}
+<div class="card">
+<b>{{ s[1] }}</b> - {{ s[2] }} - {{ s[3] }}
 
-    <form action="/update" method="POST">
-        <input type="hidden" name="code" value="{{ s[1] }}">
-        <input name="status" placeholder="New Status">
-        <input name="location" placeholder="New Location">
-        <button>Update</button>
-    </form>
+<form action="/update" method="POST">
+<input type="hidden" name="code" value="{{ s[1] }}">
+<input name="status" placeholder="Update Status">
+<input name="location" placeholder="Update Location">
+<button>Update</button>
+</form>
 </div>
-<hr>
 {% endfor %}
 
 </body>
