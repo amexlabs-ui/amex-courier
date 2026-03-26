@@ -1,87 +1,56 @@
-body{
-font-family:Arial;
-margin:0;
-background:#f4f4f4;
+body {
+    font-family: 'Segoe UI';
+    background: #f4f6f9;
+    margin: 0;
 }
 
-nav{
-display:flex;
-justify-content:space-between;
-padding:15px 40px;
-background:#0a4abf;
-color:white;
+.hero {
+    text-align: center;
+    padding: 100px;
+    background: linear-gradient(120deg, #1a73e8, #0b4dbb);
+    color: white;
 }
 
-nav a{
-color:white;
-margin-left:20px;
-text-decoration:none;
+.hero input {
+    padding: 15px;
+    width: 250px;
 }
 
-.hero{
-text-align:center;
-padding:100px;
-background:#1976d2;
-color:white;
+.hero button {
+    padding: 15px;
+    background: black;
+    color: white;
 }
 
-.hero input{
-padding:10px;
-width:250px;
+.admin-link {
+    display: block;
+    margin-top: 20px;
+    color: white;
 }
 
-.hero button{
-padding:10px;
-background:#ff7a00;
-border:none;
-color:white;
+.card {
+    background: white;
+    padding: 20px;
+    margin: 20px auto;
+    width: 80%;
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px rgba(0,0,0,0.1);
 }
 
-.box{
-background:white;
-padding:30px;
-width:300px;
-margin:50px auto;
+.grid input {
+    display: block;
+    margin: 10px;
+    padding: 10px;
 }
 
-table{
-width:90%;
-margin:20px auto;
-background:white;
+button {
+    background: #1a73e8;
+    color: white;
+    padding: 10px;
+    border: none;
 }
 
-td,th{
-padding:10px;
-border:1px solid #ddd;
-}
-.timeline{
-display:flex;
-justify-content:space-between;
-margin:30px 0;
-}
-
-.timeline div{
-flex:1;
-padding:10px;
-text-align:center;
-border-bottom:3px solid #ccc;
-transition:0.3s;
-}
-
-.timeline .active{
-border-color:#0a4abf;
-color:#0a4abf;
-font-weight:bold;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:15px;
-}
-
-textarea{
-grid-column: span 2;
-padding:10px;
-border-radius:6px;
+#map {
+    height: 300px;
+    margin-top: 20px;
 }
