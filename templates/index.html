@@ -1,14 +1,19 @@
-{% extends "base.html" %}
-{% block content %}
+<!DOCTYPE html>
+<html>
+<head>
+<title>Amex Courier</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
 
-<div class="hero">
-<h1>Fast & Reliable Global Shipping</h1>
-<p>Track your shipment in real-time worldwide</p>
+<h1>Amex Courier</h1>
 
-<form action="/track" method="POST" class="track-box">
-<input name="tracking" placeholder="Enter Tracking Number">
-<button>Track</button>
+<form action="/track" method="POST">
+    <input name="code" placeholder="Enter Tracking Code" required>
+    <button>Track</button>
 </form>
-</div>
 
-{% endblock %}
+<a href="/secure-admin-login">Admin Login</a>
+
+</body>
+</html>
