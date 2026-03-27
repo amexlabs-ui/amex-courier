@@ -71,6 +71,25 @@ def login():
             return redirect("/dashboard")
     return render_template("login.html")
 
+# ---------------- REGISTER -----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+
+        try:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
+                      (request.form["username"], request.form["password"]))
+            conn.commit()
+        except:
+            pass
+
+        conn.close()
+        return redirect("/login")
+
+    return render_template("register.html")
+    
 # ---------------- DASHBOARD ----------------
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
