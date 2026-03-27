@@ -5,15 +5,13 @@ import string
 
 app = Flask(__name__)
 app.secret_key = "secret123"
-
 DB = "database.db"
 
-# ---------------- DB INIT ----------------
+# ---------------- DB ----------------
 def init_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
 
-    # USERS
     c.execute("""
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -22,7 +20,6 @@ def init_db():
     )
     """)
 
-    # SHIPMENTS
     c.execute("""
     CREATE TABLE IF NOT EXISTS shipments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,14 +37,14 @@ def init_db():
 
     conn.commit()
     conn.close()
+
 init_db()
 
 # ---------------- HOME ----------------
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "POST":
-        code = request.form["tracking"]
-        return redirect(f"/track/{code}")
+        return redirect(f"/track/{request.form['tracking']}")
     return render_template("index.html")
 
 # ---------------- TRACK ----------------
@@ -55,12 +52,26 @@ def index():
 def track(code):
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-
     c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
     data = c.fetchone()
     conn.close()
-
     return render_template("track.html", data=data)
+
+# ---------------- REGISTER ----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        try:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
+                      (request.form["username"], request.form["password"]))
+            conn.commit()
+        except:
+            pass
+        conn.close()
+        return redirect("/login")
+    return render_template("register.html")
 
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["GET", "POST"])
@@ -70,12 +81,10 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
 
-        # ADMIN LOGIN
         if username == "admin" and password == "admin123":
             session["admin"] = True
             return redirect("/dashboard")
 
-        # USER LOGIN
         conn = sqlite3.connect(DB)
         c = conn.cursor()
         c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
@@ -88,26 +97,21 @@ def login():
 
     return render_template("login.html")
 
-# ---------------- REGISTER -----------------
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-
-        try:
-            c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
-                      (request.form["username"], request.form["password"]))
-            conn.commit()
-        except:
-            pass
-
-        conn.close()
+# ---------------- USER DASHBOARD ----------------
+@app.route("/user-dashboard")
+def user_dashboard():
+    if "user_id" not in session:
         return redirect("/login")
 
-    return render_template("register.html")
-    
-# ---------------- DASHBOARD ----------------
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute("SELECT * FROM shipments WHERE user_id=?", (session["user_id"],))
+    shipments = c.fetchall()
+    conn.close()
+
+    return render_template("user_dashboard.html", shipments=shipments)
+
+# ---------------- ADMIN DASHBOARD ----------------
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
     if "admin" not in session:
@@ -120,10 +124,11 @@ def dashboard():
         c = conn.cursor()
 
         c.execute("""
-        INSERT INTO shipments (tracking, sender, receiver, address, status, location, weight, fee)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        INSERT INTO shipments (tracking, user_id, sender, receiver, address, status, location, weight, fee)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             tracking,
+            request.form["user_id"],
             request.form["sender"],
             request.form["receiver"],
             request.form["address"],
