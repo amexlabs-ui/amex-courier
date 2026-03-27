@@ -1,20 +1,21 @@
-<link rel="stylesheet" href="/static/style.css">
+<div class="track-box">
 
-<div class="container">
-
-<div class="card">
 {% if data %}
-<h2>{{ data[1] }}</h2>
-<p>Status: {{ data[6] }}</p>
-<p>Location: {{ data[7] }}</p>
 
-<iframe width="100%" height="250"
-src="https://maps.google.com/maps?q={{ data[7] }}&output=embed">
-</iframe>
+<h2>Tracking: {{ data[1] }}</h2>
+
+<p><strong>Status:</strong> {{ data[6] }}</p>
+<p><strong>Location:</strong> {{ data[7] }}</p>
+<p><strong>Sender:</strong> {{ data[2] }}</p>
+<p><strong>Receiver:</strong> {{ data[3] }}</p>
+<p><strong>Weight:</strong> {{ data[4] }}</p>
+<p><strong>Fee:</strong> ${{ data[5] }}</p>
 
 {% else %}
-<p>Tracking not found</p>
+
+<h2 style="color:red;">Tracking Not Found</h2>
+<p>Please check your tracking number.</p>
+
 {% endif %}
-</div>
 
 </div>
