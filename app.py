@@ -50,11 +50,19 @@ def index():
 # ---------------- TRACK ----------------
 @app.route("/track/<code>")
 def track(code):
+    code = code.strip().upper()
+
     conn = sqlite3.connect(DB)
     c = conn.cursor()
+
     c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
     data = c.fetchone()
+
     conn.close()
+
+    if not data:
+        return render_template("track.html", data=None)
+
     return render_template("track.html", data=data)
 
 # ---------------- REGISTER ----------------
