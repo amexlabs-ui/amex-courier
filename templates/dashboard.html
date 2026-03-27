@@ -2,15 +2,18 @@
 
 <div class="container">
 
+<h2>Admin Dashboard</h2>
+
 <div class="card">
 <h3>Create Shipment</h3>
 <form method="POST">
-<input name="sender" placeholder="Sender">
-<input name="receiver" placeholder="Receiver">
-<input name="address" placeholder="Delivery Address">
-<input name="location" placeholder="Current Location">
-<input name="weight" placeholder="Weight">
-<input name="fee" placeholder="Fee">
+<input name="user_id" placeholder="User ID">
+<input name="sender">
+<input name="receiver">
+<input name="address">
+<input name="location">
+<input name="weight">
+<input name="fee">
 <select name="status">
 <option>In Transit</option>
 <option>Delivered</option>
@@ -21,15 +24,10 @@
 </div>
 
 <div class="card">
-<h3>All Shipments</h3>
-
+<h3>Shipments</h3>
 {% for s in shipments %}
-<div>
-<strong>{{ s[1] }}</strong> - {{ s[2] }} → {{ s[3] }}
-<span class="status in-transit">{{ s[5] }}</span>
-</div>
+<div>{{ s[1] }} - {{ s[3] }} ({{ s[5] }})</div>
 {% endfor %}
-
 </div>
 
 </div>
