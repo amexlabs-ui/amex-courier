@@ -1,97 +1,73 @@
 body {
     margin: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
+    font-family: 'Segoe UI';
     background: #f5f7fa;
 }
 
-/* NAVBAR */
 .navbar {
     display: flex;
     justify-content: space-between;
-    align-items: center;
     padding: 15px 40px;
     background: white;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
 .logo {
-    font-size: 22px;
     font-weight: bold;
     color: #1e3c72;
 }
 
 .nav-links a {
-    margin-left: 20px;
+    margin-left: 15px;
     text-decoration: none;
-    color: #333;
-    font-weight: 500;
 }
 
 .login-btn {
     background: #1e3c72;
-    color: white !important;
-    padding: 8px 14px;
+    color: white;
+    padding: 8px 12px;
     border-radius: 5px;
 }
 
-/* HERO */
 .hero {
     height: 80vh;
-    background: linear-gradient(rgba(30,60,114,0.85), rgba(30,60,114,0.85)),
-                url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d');
-    background-size: cover;
-    background-position: center;
+    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d');
+    color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: white;
-}
-
-.hero h1 {
-    font-size: 40px;
-    margin-bottom: 10px;
-}
-
-.hero p {
-    font-size: 18px;
-    margin-bottom: 30px;
-}
-
-/* TRACK BOX */
-.track-box {
-    display: flex;
-    justify-content: center;
 }
 
 .track-box input {
-    padding: 14px;
+    padding: 12px;
     width: 300px;
-    border: none;
-    outline: none;
 }
 
 .track-box button {
-    padding: 14px 20px;
-    background: #ff6b00;
+    padding: 12px;
+    background: orange;
     border: none;
-    color: white;
-    cursor: pointer;
 }
 
-/* FEATURES */
-.features {
-    display: flex;
-    justify-content: space-around;
-    padding: 50px 20px;
+.container {
+    width: 90%;
+    margin: auto;
+    margin-top: 30px;
+}
+
+.card {
     background: white;
+    padding: 20px;
+    margin-bottom: 20px;
 }
 
-.feature {
-    width: 30%;
-    text-align: center;
+.status {
+    padding: 5px 10px;
+    border-radius: 10px;
+    color: white;
 }
 
-.feature h3 {
-    color: #1e3c72;
-}
+.in-transit { background: orange; }
+.delivered { background: green; }
+.cancelled { background: red; }
