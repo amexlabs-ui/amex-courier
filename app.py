@@ -66,9 +66,26 @@ def track(code):
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        if request.form["username"] == "admin" and request.form["password"] == "admin123":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # ADMIN LOGIN
+        if username == "admin" and password == "admin123":
             session["admin"] = True
             return redirect("/dashboard")
+
+        # USER LOGIN
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            session["user_id"] = user[0]
+            return redirect("/user-dashboard")
+
     return render_template("login.html")
 
 # ---------------- REGISTER -----------------
