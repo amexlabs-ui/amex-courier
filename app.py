@@ -13,10 +13,21 @@ def init_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
 
+    # USERS
+    c.execute("""
+    CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE,
+        password TEXT
+    )
+    """)
+
+    # SHIPMENTS
     c.execute("""
     CREATE TABLE IF NOT EXISTS shipments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         tracking TEXT UNIQUE,
+        user_id INTEGER,
         sender TEXT,
         receiver TEXT,
         address TEXT,
@@ -29,7 +40,6 @@ def init_db():
 
     conn.commit()
     conn.close()
-
 init_db()
 
 # ---------------- HOME ----------------
