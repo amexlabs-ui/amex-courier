@@ -4,21 +4,12 @@
 
 <div class="card">
 {% if data %}
-
 <h2>{{ data[1] }}</h2>
+<p>Status: {{ data[6] }}</p>
+<p>Location: {{ data[7] }}</p>
 
-<p>Status: {{ data[5] }}</p>
-<p>Location: {{ data[6] }}</p>
-<p>Sender: {{ data[2] }}</p>
-<p>Receiver: {{ data[3] }}</p>
-<p>Address: {{ data[4] }}</p>
-<p>Weight: {{ data[7] }}</p>
-<p>Fee: ${{ data[8] }}</p>
-
-<iframe
-width="100%"
-height="300"
-src="https://maps.google.com/maps?q={{ data[6] }}&output=embed">
+<iframe width="100%" height="250"
+src="https://maps.google.com/maps?q={{ data[7] }}&output=embed">
 </iframe>
 
 {% else %}
