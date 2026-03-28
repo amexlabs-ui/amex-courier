@@ -40,20 +40,24 @@ def home():
     return render_template("index.html")
 
 # ---------- TRACK ----------
-@app.route("/track/<code>")
-def track(code):
-    code = code.strip().upper()
-
-    conn = sqlite3.connect(DB)
+@app.route("/track")
+def track_redirect():
+    code = request.args.get("code", "").strip()
+    return redirect(f"/track/{code}")
+    
+    conn = sqlite3.connect("database.db")
     conn.row_factory = sqlite3.Row
-    c = conn.cursor()
+    cur = conn.cursor()
 
-    c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
-    data = c.fetchone()
+    cur.execute("SELECT * FROM shipments WHERE tracking_code=?", (code,))
+    shipment = cur.fetchone()
 
     conn.close()
 
-    return render_template("track.html", data=data)
+    if not shipment:
+        return "Tracking code not found", 404
+
+    return render_template("track.html", shipment=shipment)
 
 # ---------- ADMIN DASHBOARD ----------
 @app.route("/admin", methods=["GET", "POST"])
