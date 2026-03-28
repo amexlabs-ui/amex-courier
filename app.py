@@ -59,6 +59,46 @@ def track_redirect():
 
     return render_template("track.html", shipment=shipment)
 
+# ---------------- REGISTER ----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        try:
+            c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
+                      (request.form["username"], request.form["password"]))
+            conn.commit()
+        except:
+            pass
+        conn.close()
+        return redirect("/login")
+    return render_template("register.html")
+
+# ---------------- LOGIN ----------------
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+
+        username = request.form["username"]
+        password = request.form["password"]
+
+        if username == "admin" and password == "admin123":
+            session["admin"] = True
+            return redirect("/dashboard")
+
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+        user = c.fetchone()
+        conn.close()
+
+        if user:
+            session["user_id"] = user[0]
+            return redirect("/user-dashboard")
+
+    return render_template("login.html")
+    
 # ---------- ADMIN DASHBOARD ----------
 @app.route("/admin", methods=["GET", "POST"])
 def admin():
