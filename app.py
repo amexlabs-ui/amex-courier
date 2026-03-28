@@ -76,12 +76,16 @@ def admin():
         status = request.form["status"]
         location = request.form["location"]
 
-        c.execute("""
-        INSERT INTO shipments 
-        (tracking, sender, receiver, address, weight, fee, status, location)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (tracking, sender, receiver, address, weight, fee, status, location))
-
+        cur.execute("""
+INSERT INTO shipments (
+    tracking_code, sender, receiver, status,
+    location, delivery_address
+) VALUES (?, ?, ?, ?, ?, ?)
+""", (
+    tracking_code, sender, receiver, status,
+    location, delivery_address
+))
+        
         conn.commit()
 
     c.execute("SELECT * FROM shipments ORDER BY id DESC")
