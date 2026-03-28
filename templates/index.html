@@ -1,29 +1,56 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Amex Courier</title>
-<link rel="stylesheet" href="/static/style.css">
+    <meta charset="UTF-8">
+    <title>Amex Courier</title>
+    <link rel="stylesheet" href="/static/style.css">
 </head>
-
 <body>
 
-<div class="hero">
-<h1>Amex Courier</h1>
-<p>Fast • Secure • Worldwide Delivery</p>
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">Amex Courier</div>
+    <nav>
+        <a href="/">Home</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+    </nav>
+</header>
 
-<form action="/track" method="get">
-    <input type="text" name="code" placeholder="Enter Tracking Code" required>
-    <button type="submit">Track Package</button>
-</form>
+<!-- HERO SECTION -->
+<section class="hero">
+    <div class="hero-content">
+        <h1>Fast • Secure • Worldwide Delivery</h1>
+        <p>Track your shipment in real-time with our smart logistics system</p>
 
-<a href="/admin">Admin Dashboard</a>
+        <!-- TRACK FORM -->
+        <form action="/track" method="get" class="track-box">
+            <input type="text" name="code" placeholder="Enter Tracking Code (e.g. AMX123456)" required>
+            <button type="submit">Track Package</button>
+        </form>
+    </div>
+</section>
 
-</div>
+<!-- FEATURES -->
+<section class="features">
+    <div class="feature">
+        <h3>Real-Time Tracking</h3>
+        <p>Monitor your shipment live with accurate updates.</p>
+    </div>
+    <div class="feature">
+        <h3>Global Delivery</h3>
+        <p>We ship to over 200+ countries worldwide.</p>
+    </div>
+    <div class="feature">
+        <h3>Secure Handling</h3>
+        <p>Your packages are handled with maximum care.</p>
+    </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2026 Amex Courier • All rights reserved</p>
+</footer>
 
 </body>
 </html>
-
-<div class="nav">
-    <a href="/login">Login</a>
-    <a href="/register">Register</a>
-</div>
