@@ -1,31 +1,72 @@
 body {
-    font-family: Arial;
-    background: #f4f4f4;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f9;
+}
+
+/* NAVBAR */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 40px;
+    background: #0d2c6c;
+    color: white;
+}
+
+.navbar a {
+    color: white;
+    margin-left: 20px;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+/* HERO */
+.hero {
+    background: linear-gradient(to right, #1e3c72, #2a5298);
+    color: white;
+    padding: 100px 20px;
     text-align: center;
 }
 
-.hero {
-    background: #1e3c72;
-    color: white;
-    padding: 60px;
+.hero h1 {
+    font-size: 36px;
 }
 
-input, select {
-    padding: 10px;
-    margin: 5px;
-    width: 200px;
+.track-box {
+    margin-top: 20px;
 }
 
-button {
-    padding: 10px;
-    background: black;
-    color: white;
+.track-box input {
+    padding: 12px;
+    width: 280px;
     border: none;
 }
 
-.card {
+.track-box button {
+    padding: 12px 20px;
+    background: black;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+/* FEATURES */
+.features {
+    display: flex;
+    justify-content: space-around;
+    padding: 50px;
     background: white;
-    padding: 20px;
-    margin: 20px auto;
-    width: 400px;
+}
+
+.feature {
+    width: 30%;
+    text-align: center;
+}
+
+/* FOOTER */
+footer {
+    background: #0d2c6c;
+    color: white;
+    text-align: center;
+    padding: 15px;
 }
