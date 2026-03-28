@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Track Shipment</title>
-    <link rel="stylesheet" href="/static/style.css">
+<title>Tracking</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
 
 <body>
-
-<div class="container">
 
 <div class="card">
 
@@ -15,21 +13,19 @@
 
 <h2>Tracking: {{ data['tracking'] }}</h2>
 
-<p><strong>Status:</strong> {{ data['status'] }}</p>
-<p><strong>Location:</strong> {{ data['location'] }}</p>
-<p><strong>Sender:</strong> {{ data['sender'] }}</p>
-<p><strong>Receiver:</strong> {{ data['receiver'] }}</p>
-<p><strong>Weight:</strong> {{ data['weight'] }}</p>
-<p><strong>Fee:</strong> ${{ data['fee'] }}</p>
+<p>Status: {{ data['status'] }}</p>
+<p>Location: {{ data['location'] }}</p>
+<p>Sender: {{ data['sender'] }}</p>
+<p>Receiver: {{ data['receiver'] }}</p>
+<p>Address: {{ data['address'] }}</p>
+<p>Weight: {{ data['weight'] }}</p>
+<p>Fee: ${{ data['fee'] }}</p>
 
 {% else %}
 
 <h2 style="color:red;">Tracking Not Found</h2>
-<p>Invalid or missing tracking number.</p>
 
 {% endif %}
-
-</div>
 
 </div>
 
