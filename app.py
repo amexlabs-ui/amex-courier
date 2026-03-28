@@ -1,37 +1,27 @@
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect
 import sqlite3
 import random
-import string
 
 app = Flask(__name__)
-app.secret_key = "secret123"
+
 DB = "database.db"
 
-# ---------------- DB ----------------
+# ---------- DATABASE INIT ----------
 def init_db():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
 
     c.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        username TEXT UNIQUE,
-        password TEXT
-    )
-    """)
-
-    c.execute("""
     CREATE TABLE IF NOT EXISTS shipments (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tracking TEXT UNIQUE,
-        user_id INTEGER,
+        tracking TEXT,
         sender TEXT,
         receiver TEXT,
         address TEXT,
-        status TEXT,
-        location TEXT,
         weight TEXT,
-        fee TEXT
+        fee TEXT,
+        status TEXT,
+        location TEXT
     )
     """)
 
@@ -40,130 +30,63 @@ def init_db():
 
 init_db()
 
-# ---------------- HOME ----------------
+# ---------- HOME ----------
 @app.route("/", methods=["GET", "POST"])
-def index():
+def home():
     if request.method == "POST":
-        return redirect(f"/track/{request.form['tracking']}")
+        code = request.form.get("tracking", "").strip().upper()
+        return redirect(f"/track/{code}")
+
     return render_template("index.html")
 
-# ---------------- TRACK ----------------
+# ---------- TRACK ----------
 @app.route("/track/<code>")
 def track(code):
-    try:
-        code = code.strip().upper()
-
-        conn = sqlite3.connect("database.db")
-        conn.row_factory = sqlite3.Row  # ✅ prevents index crashes
-        c = conn.cursor()
-
-        c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
-        data = c.fetchone()
-
-        conn.close()
-
-        return render_template("track.html", data=data)
-
-    except Exception as e:
-        return f"ERROR: {str(e)}"
-
-# ---------------- REGISTER ----------------
-@app.route("/register", methods=["GET", "POST"])
-def register():
-    if request.method == "POST":
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        try:
-            c.execute("INSERT INTO users (username, password) VALUES (?, ?)",
-                      (request.form["username"], request.form["password"]))
-            conn.commit()
-        except:
-            pass
-        conn.close()
-        return redirect("/login")
-    return render_template("register.html")
-
-# ---------------- LOGIN ----------------
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-
-        username = request.form["username"]
-        password = request.form["password"]
-
-        if username == "admin" and password == "admin123":
-            session["admin"] = True
-            return redirect("/dashboard")
-
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
-        user = c.fetchone()
-        conn.close()
-
-        if user:
-            session["user_id"] = user[0]
-            return redirect("/user-dashboard")
-
-    return render_template("login.html")
-
-# ---------------- USER DASHBOARD ----------------
-@app.route("/user-dashboard")
-def user_dashboard():
-    if "user_id" not in session:
-        return redirect("/login")
+    code = code.strip().upper()
 
     conn = sqlite3.connect(DB)
+    conn.row_factory = sqlite3.Row
     c = conn.cursor()
-    c.execute("SELECT * FROM shipments WHERE user_id=?", (session["user_id"],))
-    shipments = c.fetchall()
+
+    c.execute("SELECT * FROM shipments WHERE tracking=?", (code,))
+    data = c.fetchone()
+
     conn.close()
 
-    return render_template("user_dashboard.html", shipments=shipments)
+    return render_template("track.html", data=data)
 
-# ---------------- ADMIN DASHBOARD ----------------
-@app.route("/dashboard", methods=["GET", "POST"])
-def dashboard():
-    if "admin" not in session:
-        return redirect("/login")
+# ---------- ADMIN DASHBOARD ----------
+@app.route("/admin", methods=["GET", "POST"])
+def admin():
+    conn = sqlite3.connect(DB)
+    conn.row_factory = sqlite3.Row
+    c = conn.cursor()
 
     if request.method == "POST":
-        tracking = "AMX" + ''.join(random.choices(string.digits, k=6))
-
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
+        tracking = "AMX" + str(random.randint(100000, 999999))
+        sender = request.form["sender"]
+        receiver = request.form["receiver"]
+        address = request.form["address"]
+        weight = request.form["weight"]
+        fee = request.form["fee"]
+        status = request.form["status"]
+        location = request.form["location"]
 
         c.execute("""
-        INSERT INTO shipments (tracking, user_id, sender, receiver, address, status, location, weight, fee)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (
-            tracking,
-            request.form["user_id"],
-            request.form["sender"],
-            request.form["receiver"],
-            request.form["address"],
-            request.form["status"],
-            request.form["location"],
-            request.form["weight"],
-            request.form["fee"]
-        ))
+        INSERT INTO shipments 
+        (tracking, sender, receiver, address, weight, fee, status, location)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        """, (tracking, sender, receiver, address, weight, fee, status, location))
 
         conn.commit()
-        conn.close()
 
-    conn = sqlite3.connect(DB)
-    c = conn.cursor()
-    c.execute("SELECT * FROM shipments")
+    c.execute("SELECT * FROM shipments ORDER BY id DESC")
     shipments = c.fetchall()
+
     conn.close()
 
-    return render_template("dashboard.html", shipments=shipments)
+    return render_template("admin.html", shipments=shipments)
 
-# ---------------- LOGOUT ----------------
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
+# ---------- RUN ----------
 if __name__ == "__main__":
     app.run(debug=True)
