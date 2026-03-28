@@ -1,125 +1,31 @@
 body {
-    margin: 0;
-    font-family: 'Segoe UI';
-    background: #f5f7fa;
-}
-
-.navbar {
-    display: flex;
-    justify-content: space-between;
-    padding: 15px 40px;
-    background: white;
-}
-
-.logo {
-    font-weight: bold;
-    color: #1e3c72;
-}
-
-.nav-links a {
-    margin-left: 15px;
-    text-decoration: none;
-}
-
-.login-btn {
-    background: #1e3c72;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 5px;
-}
-
-.hero {
-    height: 80vh;
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
-    url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d');
-    color: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-family: Arial;
+    background: #f4f4f4;
     text-align: center;
 }
 
-.track-box input {
-    padding: 12px;
-    width: 300px;
+.hero {
+    background: #1e3c72;
+    color: white;
+    padding: 60px;
 }
 
-.track-box button {
-    padding: 12px;
-    background: orange;
+input, select {
+    padding: 10px;
+    margin: 5px;
+    width: 200px;
+}
+
+button {
+    padding: 10px;
+    background: black;
+    color: white;
     border: none;
-}
-
-.container {
-    width: 90%;
-    margin: auto;
-    margin-top: 30px;
 }
 
 .card {
     background: white;
     padding: 20px;
-    margin-bottom: 20px;
+    margin: 20px auto;
+    width: 400px;
 }
-
-.status {
-    padding: 5px 10px;
-    border-radius: 10px;
-    color: white;
-}
-
-.in-transit { background: orange; }
-.delivered { background: green; }
-.cancelled { background: red; }
-
-/* FORM GRID */
-.form-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-}
-
-.form-grid div {
-    display: flex;
-    flex-direction: column;
-}
-
-label {
-    font-size: 13px;
-    margin-bottom: 5px;
-    color: #555;
-}
-
-.full-btn {
-    grid-column: span 2;
-    padding: 12px;
-    background: #1e3c72;
-    color: white;
-    border: none;
-    cursor: pointer;
-}
-
-/* TABLE */
-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
-    text-align: left;
-}
-
-/* STATUS COLORS */
-.status {
-    padding: 5px 10px;
-    border-radius: 20px;
-    color: white;
-    font-size: 12px;
-}
-
-.in-transit { background: orange; }
-.delivered { background: green; }
-.cancelled { background: red; }
-.out { background: blue; }
