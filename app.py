@@ -112,25 +112,31 @@ VALUES (?,?,?,?,?,?)
     return redirect("/dashboard")
 
 # TRACK REDIRECT
-@app.route("/track", methods=["POST"])
-def track_redirect():
-    code = request.form.get("code")
-    return redirect(url_for("track", code=code))
-
-# TRACK PAGE
 @app.route("/track/<code>")
 def track(code):
+    code = code.strip().upper()
+
     con = db()
+    con.row_factory = sqlite3.Row
+
     shipment = con.execute(
-        "SELECT * FROM shipments WHERE code=?",
-        (code.strip(),)
+        "SELECT * FROM shipments WHERE code=? OR tracking_code=?",
+        (code, code)
     ).fetchone()
+
+    history = []
+    if shipment:
+        try:
+            history = con.execute(
+                "SELECT * FROM history WHERE tracking_code=? ORDER BY id DESC",
+                (code,)
+            ).fetchall()
+        except sqlite3.OperationalError:
+            history = []
+
     con.close()
 
-    if not shipment:
-        return "Tracking code not found"
-
-    return render_template("track.html", s=shipment)
+    return render_template("track.html", shipment=shipment, history=history)
 
 # ABOUT
 @app.route("/about")
