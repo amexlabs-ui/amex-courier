@@ -27,8 +27,7 @@ def init_db():
         receiver TEXT,
         status TEXT,
         location TEXT,
-        lat REAL,
-        lng REAL
+        delivery fee
     )
     """)
 
@@ -97,15 +96,14 @@ def create():
     sender = request.form.get("sender")
     receiver = request.form.get("receiver")
     location = request.form.get("location")
-    lat = request.form.get("lat")
-    lng = request.form.get("lng")
+   delivery_fee = request.form.get("delivery_fee")
 
     try:
         con = db()
         con.execute("""
-        INSERT INTO shipments(code,sender,receiver,status,location,lat,lng)
-        VALUES (?,?,?,?,?,?,?)
-        """,(code,sender,receiver,"In Transit",location,lat,lng))
+INSERT INTO shipments(code,sender,receiver,status,location,delivery_fee)
+VALUES (?,?,?,?,?,?)
+""",(code,sender,receiver,"In Transit",location,delivery_fee))
         con.commit()
         con.close()
     except Exception as e:
