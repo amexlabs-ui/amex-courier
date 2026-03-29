@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <title>Amex Courier</title>
 <link rel="stylesheet" href="/static/style.css">
-
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -13,27 +12,28 @@ body {
     font-family: 'Poppins', sans-serif;
 }
 
-/* NAVBAR */
 .navbar {
     display: flex;
     justify-content: space-between;
     padding: 15px 50px;
-    background: rgba(0,0,0,0.6);
+    background: rgba(0,0,0,0.55);
     position: absolute;
     width: 100%;
+    box-sizing: border-box;
     color: white;
+    z-index: 10;
 }
 
 .navbar a {
     color: white;
     margin-left: 20px;
     text-decoration: none;
+    font-weight: 500;
 }
 
-/* HERO */
 .hero {
-    height: 90vh;
-    background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+    min-height: 90vh;
+    background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
     url('https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d');
     background-size: cover;
     background-position: center;
@@ -42,124 +42,160 @@ body {
     align-items: center;
     justify-content: center;
     text-align: center;
+    padding: 40px 20px;
 }
 
 .hero h1 {
-    font-size: 50px;
+    font-size: 52px;
+    margin-bottom: 10px;
+}
+
+.hero p {
+    font-size: 18px;
+    margin-bottom: 28px;
 }
 
 .track-box {
-    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 0;
 }
 
 .track-box input {
-    padding: 14px;
-    width: 300px;
+    padding: 16px;
+    width: 320px;
     border: none;
+    outline: none;
+    font-size: 15px;
 }
 
 .track-box button {
-    padding: 14px;
-    background: orange;
+    padding: 16px 24px;
+    background: #ff6b00;
+    color: white;
     border: none;
     cursor: pointer;
+    font-weight: 600;
 }
 
-/* FEATURES */
 .features {
     display: flex;
     justify-content: space-around;
-    padding: 60px;
+    gap: 20px;
+    padding: 60px 30px;
     background: #f4f6f9;
+    flex-wrap: wrap;
 }
 
 .feature {
     width: 30%;
+    min-width: 260px;
+    background: white;
+    border-radius: 14px;
+    padding: 25px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     text-align: center;
 }
 
-/* ABOUT */
 .about {
-    padding: 60px;
+    padding: 70px 30px;
     text-align: center;
+    background: white;
 }
 
-/* FOOTER */
+.about p {
+    max-width: 850px;
+    margin: 0 auto 16px;
+    line-height: 1.7;
+    color: #374151;
+}
+
 .footer {
     background: #0a2c5e;
     color: white;
     text-align: center;
     padding: 20px;
 }
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 15px 20px;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .hero h1 {
+        font-size: 34px;
+    }
+
+    .track-box {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .track-box input,
+    .track-box button {
+        width: 100%;
+        max-width: 380px;
+    }
+}
 </style>
-
 </head>
-
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
-<div><b>Amex Courier</b></div>
-
-<div>
-<a href="/">Home</a>
-<a href="/login">Login</a>
-<a href="/register">Register</a>
-<a href="/about">About</a>
-<a href="/faq">FAQ</a>
+    <div><b>Amex Courier</b></div>
+    <div>
+        <a href="/">Home</a>
+        <a href="/login">Login</a>
+        <a href="/register">Register</a>
+        <a href="/about">About</a>
+        <a href="/faq">FAQ</a>
+    </div>
 </div>
-</div>
 
-<!-- HERO -->
 <div class="hero">
-<div>
-<h1>Fast & Secure Global Delivery</h1>
-<p>Track your shipment in real-time anywhere in the world</p>
+    <div>
+        <h1>Fast & Secure Global Delivery</h1>
+        <p>Track your shipment in real-time anywhere in the world</p>
 
-<form action="/track" method="post" class="track-box">
-    <input name="code" placeholder="Enter Tracking Code" required>
-    <button type="submit">Track Package</button>
-</form>
-
+        <form action="/track" method="post" class="track-box">
+            <input name="code" placeholder="Enter Tracking Code" required>
+            <button type="submit">Track Package</button>
+        </form>
+    </div>
 </div>
-</div>
 
-<!-- FEATURES -->
 <div class="features">
+    <div class="feature">
+        <h3>Real-Time Tracking</h3>
+        <p>Monitor your shipment with accurate status updates and delivery progress.</p>
+    </div>
 
-<div class="feature">
-<h3>Real-Time Tracking</h3>
-<p>Monitor your shipment live with accurate updates.</p>
+    <div class="feature">
+        <h3>Worldwide Delivery</h3>
+        <p>We deliver across major global locations with secure and reliable logistics support.</p>
+    </div>
+
+    <div class="feature">
+        <h3>Secure Handling</h3>
+        <p>Your packages are managed carefully from dispatch to final destination.</p>
+    </div>
 </div>
 
-<div class="feature">
-<h3>Worldwide Delivery</h3>
-<p>We deliver to over 200+ countries globally.</p>
-</div>
-
-<div class="feature">
-<h3>Secure Handling</h3>
-<p>Your packages are protected with top-level security.</p>
-</div>
-
-</div>
-
-<!-- ABOUT -->
 <div class="about">
-<h2>About Amex Courier</h2>
-
-<p>
-Amex Courier is a global logistics company committed to delivering packages quickly,
-securely, and reliably across the world. We combine technology with logistics expertise
-to provide real-time tracking and seamless delivery experience.
-</p>
-
-<p><b>Customer Care:</b> frankiebreeuwsma@myself.com</p>
+    <h2>About Amex Courier</h2>
+    <p>
+        Amex Courier is committed to reliable, transparent, and customer-focused shipping services.
+        Our mission is to simplify logistics by combining real-time tracking, professional support,
+        and delivery visibility that customers can trust.
+    </p>
+    <p><strong>Customer Care:</strong> frankiebreeuwsma@myself.com</p>
 </div>
 
-<!-- FOOTER -->
 <div class="footer">
-<p>© 2026 Amex Courier. All rights reserved.</p>
+    <p>© 2026 Amex Courier. All rights reserved.</p>
 </div>
 
 </body>
