@@ -1,17 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/style.css">
-</head>
-<body>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-<h2>Dashboard</h2>
+<h2>Tracking Code: {{s[1]}}</h2>
+<p>Status: {{s[4]}}</p>
+<p>Location: {{s[5]}}</p>
 
-<form action="/create" method="POST" class="form-box">
-<input name="sender" placeholder="Sender" required>
-<input name="receiver" placeholder="Receiver" required>
-<input name="location" placeholder="Location" required>
-<input name="delivery_address" placeholder="Delivery Address" required>
+<div id="map" style="height:400px;"></div>
+
+<script>
+var map = L.map('map').setView([{{s[6]}}, {{s[7]}}], 5);
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+var marker = L.marker([{{s[6]}}, {{s[7]}}]).addTo(map)
+.bindPopup("Current Location").openPopup();
+</script>
 
 <select name="status">
 <option>Processing</option>
