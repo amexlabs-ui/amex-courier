@@ -1,33 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Tracking</title>
 <link rel="stylesheet" href="/static/style.css">
 </head>
-
 <body>
 
-<div class="card">
+<h2>Dashboard</h2>
 
-{% if data %}
+<form action="/create" method="POST" class="form-box">
+<input name="sender" placeholder="Sender" required>
+<input name="receiver" placeholder="Receiver" required>
+<input name="location" placeholder="Location" required>
+<input name="delivery_address" placeholder="Delivery Address" required>
 
-<h2>Tracking: {{ data['tracking'] }}</h2>
+<select name="status">
+<option>Processing</option>
+<option>In Transit</option>
+<option>Delivered</option>
+</select>
 
-<p>Status: {{ data['status'] }}</p>
-<p>Location: {{ data['location'] }}</p>
-<p>Sender: {{ data['sender'] }}</p>
-<p>Receiver: {{ data['receiver'] }}</p>
-<p>Address: {{ data['address'] }}</p>
-<p>Weight: {{ data['weight'] }}</p>
-<p>Fee: ${{ data['fee'] }}</p>
-
-{% else %}
-
-<h2 style="color:red;">Tracking Not Found</h2>
-
-{% endif %}
-
-</div>
+<button>Create Shipment</button>
+</form>
 
 </body>
 </html>
