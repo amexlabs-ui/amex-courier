@@ -1,112 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style.css">
 </head>
-
 <body>
 
-<div class="navbar">
-    <div class="logo">Amex Courier Admin</div>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/logout">Logout</a>
-    </div>
-</div>
+<h2>Dashboard</h2>
 
-<div class="container">
+<form action="/create" method="POST" class="form-box">
+<input name="sender" placeholder="Sender" required>
+<input name="receiver" placeholder="Receiver" required>
+<input name="location" placeholder="Location" required>
+<input name="delivery_address" placeholder="Delivery Address" required>
 
-<!-- CREATE SHIPMENT -->
-<div class="card">
-<h2>Create Shipment</h2>
-
-<form method="POST" class="form-grid">
-
-<div>
-<label>User ID</label>
-<input name="user_id" placeholder="Enter user ID" required>
-</div>
-
-<div>
-<label>Sender Name</label>
-<input name="sender" placeholder="Sender name" required>
-</div>
-
-<div>
-<label>Receiver Name</label>
-<input name="receiver" placeholder="Receiver name" required>
-</div>
-
-<div>
-<label>Delivery Address</label>
-<input name="address" placeholder="Full delivery address" required>
-</div>
-
-<div>
-<label>Current Location</label>
-<input name="location" placeholder="e.g. London, UK" required>
-</div>
-
-<div>
-<label>Package Weight</label>
-<input name="weight" placeholder="e.g. 2kg">
-</div>
-
-<div>
-<label>Delivery Fee ($)</label>
-<input name="fee" placeholder="e.g. 120">
-</div>
-
-<div>
-<label>Status</label>
 <select name="status">
+<option>Processing</option>
 <option>In Transit</option>
-<option>Out for Delivery</option>
 <option>Delivered</option>
-<option>Cancelled</option>
 </select>
-</div>
 
-<button type="submit" class="full-btn">Create Shipment</button>
-
+<button>Create Shipment</button>
 </form>
-</div>
-
-<!-- SHIPMENT TABLE -->
-<div class="card">
-<h2>All Shipments</h2>
-
-<table>
-<tr>
-<th>Tracking</th>
-<th>Receiver</th>
-<th>Status</th>
-<th>Location</th>
-</tr>
-
-{% for s in shipments %}
-<tr>
-<td><strong>{{ s[1] }}</strong></td>
-<td>{{ s[3] }}</td>
-<td>
-<span class="status 
-{% if s[6]=='Delivered' %}delivered
-{% elif s[6]=='Cancelled' %}cancelled
-{% elif s[6]=='Out for Delivery' %}out
-{% else %}in-transit{% endif %}">
-{{ s[6] }}
-</span>
-</td>
-<td>{{ s[7] }}</td>
-</tr>
-{% endfor %}
-
-</table>
-
-</div>
-
-</div>
 
 </body>
 </html>
