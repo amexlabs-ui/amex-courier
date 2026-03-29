@@ -4,8 +4,6 @@
 <meta charset="UTF-8">
 <title>Admin Dashboard - Amex Courier</title>
 <link rel="stylesheet" href="/static/style.css">
-
-<!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
 <style>
@@ -15,102 +13,190 @@ body {
     background: #f4f6f9;
 }
 
-/* SIDEBAR */
 .sidebar {
     width: 240px;
     height: 100vh;
     background: #0a2c5e;
     color: white;
     position: fixed;
-    padding: 20px;
+    left: 0;
+    top: 0;
+    padding: 24px 20px;
+    box-sizing: border-box;
 }
 
 .sidebar h2 {
+    margin-top: 0;
     margin-bottom: 30px;
 }
 
 .sidebar a {
     display: block;
     color: white;
-    padding: 10px 0;
     text-decoration: none;
+    padding: 10px 0;
+    opacity: 0.95;
 }
 
 .sidebar a:hover {
-    opacity: 0.7;
+    opacity: 0.75;
 }
 
-/* MAIN */
 .main {
     margin-left: 260px;
     padding: 30px;
 }
 
-/* CARDS */
-.card {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-    margin-bottom: 20px;
+.page-title {
+    margin-top: 0;
+    color: #0a2c5e;
 }
 
-/* FORM */
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.07);
+    margin-bottom: 24px;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
+    gap: 16px;
 }
 
-input, select {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+.form-group {
+    display: flex;
+    flex-direction: column;
 }
 
-button {
+label {
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 6px;
+    font-weight: 500;
+}
+
+input, select, textarea {
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    background: #fff;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.full-span {
+    grid-column: 1 / -1;
+}
+
+.primary-btn {
+    grid-column: 1 / -1;
     background: #0a2c5e;
     color: white;
     border: none;
-    padding: 12px;
-    border-radius: 6px;
+    padding: 13px 18px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
 }
 
-button:hover {
-    background: #06306f;
+.primary-btn:hover {
+    background: #08306b;
 }
 
-/* TABLE */
+.error-box {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+    padding: 12px 14px;
+    border-radius: 10px;
+    margin-bottom: 18px;
+}
+
+.success-note {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 8px;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
 }
 
 th, td {
-    padding: 12px;
-    border-bottom: 1px solid #ddd;
+    padding: 14px 10px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    vertical-align: top;
 }
 
-/* STATUS BADGES */
+th {
+    color: #374151;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+}
+
 .status {
-    padding: 5px 10px;
-    border-radius: 20px;
+    padding: 6px 12px;
+    border-radius: 999px;
     color: white;
     font-size: 12px;
+    font-weight: 600;
+    display: inline-block;
 }
 
-.in-transit { background: orange; }
-.delivered { background: green; }
-.cancelled { background: red; }
-.out { background: blue; }
+.processing { background: #6b7280; }
+.in-transit { background: #f59e0b; }
+.out-for-delivery { background: #2563eb; }
+.delivered { background: #16a34a; }
+.cancelled { background: #dc2626; }
+.delayed { background: #7c3aed; }
+
+.update-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.update-form button {
+    background: #111827;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 14px;
+    cursor: pointer;
+}
+
+@media (max-width: 1000px) {
+    .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+    }
+
+    .main {
+        margin-left: 0;
+    }
+
+    .form-grid,
+    .update-form {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
-
 </head>
-
 <body>
 
-<!-- SIDEBAR -->
 <div class="sidebar">
     <h2>Amex Admin</h2>
     <a href="/dashboard">Dashboard</a>
@@ -118,75 +204,110 @@ th, td {
     <a href="/logout">Logout</a>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <p class="success-note">Create shipments, manage updates, and monitor all delivery records.</p>
 
-<!-- HEADER -->
-<h1>Admin Dashboard</h1>
-<p>Manage shipments and track deliveries</p>
+    <div class="card">
+        <h2>Create Shipment</h2>
 
-<!-- CREATE SHIPMENT -->
-<div class="card">
-<h2>Create Shipment</h2>
+        {% if error %}
+            <div class="error-box">{{ error }}</div>
+        {% endif %}
 
-<form action="/create" method="POST" class="form-grid">
+        <form action="/create" method="POST" class="form-grid">
+            <div class="form-group">
+                <label>Sender Name</label>
+                <input name="sender" placeholder="Sender Name" required>
+            </div>
 
-<input name="sender" placeholder="Sender Name" required>
-<input name="receiver" placeholder="Receiver Name" required>
+            <div class="form-group">
+                <label>Receiver Name</label>
+                <input name="receiver" placeholder="Receiver Name" required>
+            </div>
 
-<input name="location" placeholder="Current Location (City, Country)" required>
-<input name="delivery_address" placeholder="Delivery Address" required>
+            <div class="form-group">
+                <label>Current Location</label>
+                <input name="location" placeholder="Current Location" required>
+            </div>
 
-<input name="delivery_fee" placeholder="Delivery Fee (e.g $120)" required>
+            <div class="form-group">
+                <label>Delivery Address</label>
+                <input name="delivery_address" placeholder="Delivery Address" required>
+            </div>
 
-<select name="status">
-<option>In Transit</option>
-<option>Out for Delivery</option>
-<option>Delivered</option>
-<option>Cancelled</option>
-</select>
+            <div class="form-group">
+                <label>Weight</label>
+                <input name="weight" placeholder="e.g. 2kg">
+            </div>
 
-<button type="submit" style="grid-column: span 2;">
-Create Shipment
-</button>
+            <div class="form-group">
+                <label>Delivery Fee</label>
+                <input name="delivery_fee" placeholder="e.g. $120">
+            </div>
 
-</form>
-</div>
+            <div class="form-group full-span">
+                <label>Package Description</label>
+                <textarea name="description" placeholder="Description of package contents"></textarea>
+            </div>
 
-<!-- SHIPMENTS TABLE -->
-<div class="card">
-<h2>All Shipments</h2>
+            <div class="form-group full-span">
+                <label>Status</label>
+                <select name="status">
+                    <option>Processing</option>
+                    <option>In Transit</option>
+                    <option>Out for Delivery</option>
+                    <option>Delivered</option>
+                    <option>Cancelled</option>
+                    <option>Delayed</option>
+                </select>
+            </div>
 
-<table>
-<tr>
-<th>Tracking</th>
-<th>Receiver</th>
-<th>Status</th>
-<th>Location</th>
-</tr>
+            <button type="submit" class="primary-btn">Create Shipment</button>
+        </form>
+    </div>
 
-{% for s in shipments %}
-<tr>
-<td><b>{{ s[1] }}</b></td>
-<td>{{ s[3] }}</td>
+    <div class="card">
+        <h2>All Shipments</h2>
 
-<td>
-<span class="status 
-{% if s[4]=='Delivered' %}delivered
-{% elif s[4]=='Cancelled' %}cancelled
-{% elif s[4]=='Out for Delivery' %}out
-{% else %}in-transit{% endif %}">
-{{ s[4] }}
-</span>
-</td>
+        <table>
+            <tr>
+                <th>Tracking</th>
+                <th>Receiver</th>
+                <th>Status</th>
+                <th>Location</th>
+                <th>Update</th>
+            </tr>
 
-<td>{{ s[5] }}</td>
-</tr>
-{% endfor %}
+            {% for s in shipments %}
+            <tr>
+                <td><strong>{{ s['tracking_code'] }}</strong></td>
+                <td>{{ s['receiver'] }}</td>
+                <td>
+                    <span class="status {{ get_status_class(s['status']) }}">
+                        {{ s['status'] }}
+                    </span>
+                </td>
+                <td>{{ s['location'] }}</td>
+                <td>
+                    <form action="/update/{{ s['tracking_code'] }}" method="POST" class="update-form">
+                        <select name="status" required>
+                            <option>Processing</option>
+                            <option>In Transit</option>
+                            <option>Out for Delivery</option>
+                            <option>Delivered</option>
+                            <option>Cancelled</option>
+                            <option>Delayed</option>
+                        </select>
 
-</table>
-</div>
-
+                        <input name="location" placeholder="New Location" required>
+                        <button type="submit">Update</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
 </div>
 
 </body>
