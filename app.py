@@ -1,153 +1,135 @@
 from flask import Flask, render_template, request, redirect, session
-import sqlite3, random
+import sqlite3, random, string
 
 app = Flask(__name__)
 app.secret_key = "secret123"
 
-DB = "database.db"
+def db():
+    return sqlite3.connect("database.db")
 
-# ================= DATABASE =================
+# AUTO CREATE TABLES
 def init_db():
-    conn = sqlite3.connect(DB)
-    cur = conn.cursor()
+    con = db()
+    cur = con.cursor()
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS users (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
+    CREATE TABLE IF NOT EXISTS users(
+        id INTEGER PRIMARY KEY,
         username TEXT,
         password TEXT
     )
     """)
 
     cur.execute("""
-    CREATE TABLE IF NOT EXISTS shipments (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        tracking_code TEXT,
+    CREATE TABLE IF NOT EXISTS shipments(
+        id INTEGER PRIMARY KEY,
+        code TEXT,
         sender TEXT,
         receiver TEXT,
         status TEXT,
         location TEXT,
-        delivery_address TEXT
+        lat REAL,
+        lng REAL
     )
     """)
 
-    conn.commit()
-    conn.close()
+    con.commit()
+    con.close()
 
 init_db()
 
-# ================= ROUTES =================
-
+# HOME
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# -------- REGISTER --------
+# REGISTER
 @app.route("/register", methods=["GET","POST"])
 def register():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        u = request.form["username"]
+        p = request.form["password"]
 
-        conn = sqlite3.connect(DB)
-        cur = conn.cursor()
-        cur.execute("INSERT INTO users (username,password) VALUES (?,?)",(username,password))
-        conn.commit()
-        conn.close()
+        con = db()
+        con.execute("INSERT INTO users(username,password) VALUES (?,?)",(u,p))
+        con.commit()
+        con.close()
 
         return redirect("/login")
 
     return render_template("register.html")
 
-# -------- LOGIN --------
+# LOGIN
 @app.route("/login", methods=["GET","POST"])
 def login():
     if request.method == "POST":
-        username = request.form["username"]
-        password = request.form["password"]
+        u = request.form["username"]
+        p = request.form["password"]
 
-        conn = sqlite3.connect(DB)
-        cur = conn.cursor()
-        cur.execute("SELECT * FROM users WHERE username=? AND password=?",(username,password))
-        user = cur.fetchone()
-        conn.close()
+        con = db()
+        user = con.execute("SELECT * FROM users WHERE username=? AND password=?",(u,p)).fetchone()
+        con.close()
 
         if user:
-            session["user"] = username
+            session["user"] = u
             return redirect("/dashboard")
-        else:
-            return "Invalid credentials"
 
     return render_template("login.html")
 
-# -------- DASHBOARD --------
+# DASHBOARD
 @app.route("/dashboard")
 def dashboard():
     if "user" not in session:
         return redirect("/login")
 
-    return render_template("admin.html")
+    con = db()
+    shipments = con.execute("SELECT * FROM shipments").fetchall()
+    con.close()
 
-# -------- CREATE SHIPMENT --------
+    return render_template("dashboard.html", shipments=shipments)
+
+# CREATE SHIPMENT
 @app.route("/create", methods=["POST"])
 def create():
-    try:
-        tracking = "AMX" + str(random.randint(100000,999999))
+    code = "AMX" + str(random.randint(100000,999999))
 
-        sender = request.form["sender"]
-        receiver = request.form["receiver"]
-        status = request.form["status"]
-        location = request.form["location"]
-        address = request.form["delivery_address"]
+    sender = request.form["sender"]
+    receiver = request.form["receiver"]
+    location = request.form["location"]
 
-        conn = sqlite3.connect(DB)
-        cur = conn.cursor()
+    lat = float(request.form["lat"])
+    lng = float(request.form["lng"])
 
-        cur.execute("""
-        INSERT INTO shipments 
-        (tracking_code,sender,receiver,status,location,delivery_address)
-        VALUES (?,?,?,?,?,?)
-        """,(tracking,sender,receiver,status,location,address))
+    con = db()
+    con.execute("""
+    INSERT INTO shipments(code,sender,receiver,status,location,lat,lng)
+    VALUES (?,?,?,?,?,?,?)
+    """,(code,sender,receiver,"In Transit",location,lat,lng))
+    con.commit()
+    con.close()
 
-        conn.commit()
-        conn.close()
+    return redirect("/dashboard")
 
-        return f"Tracking Code Created: {tracking}"
-
-    except Exception as e:
-        return f"ERROR: {str(e)}"
-
-# -------- TRACK --------
-@app.route("/track")
-def track_redirect():
-    code = request.args.get("code").strip()
-    return redirect(f"/track/{code}")
-
+# TRACK
 @app.route("/track/<code>")
 def track(code):
-    conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row
-    cur = conn.cursor()
+    con = db()
+    shipment = con.execute("SELECT * FROM shipments WHERE code=?",(code.strip(),)).fetchone()
+    con.close()
 
-    cur.execute("SELECT * FROM shipments WHERE tracking_code=?", (code,))
-    data = cur.fetchone()
-    conn.close()
+    if not shipment:
+        return "Tracking code not found"
 
-    if not data:
-        return "Tracking not found"
+    return render_template("track.html", s=shipment)
 
-    return render_template("track.html", data=data)
-
-# -------- ABOUT --------
+# ABOUT
 @app.route("/about")
 def about():
     return render_template("about.html")
 
-# -------- FAQ --------
+# FAQ
 @app.route("/faq")
 def faq():
     return render_template("faq.html")
 
-# ================= RUN =================
-if __name__ == "__main__":
-    app.run(debug=True)
+app.run()
