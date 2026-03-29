@@ -112,6 +112,12 @@ VALUES (?,?,?,?,?,?)
     return redirect("/dashboard")
 
 # TRACK REDIRECT
+@app.route("/track", methods=["POST"])
+def track_redirect():
+    code = request.form.get("code", "").strip().upper()
+    return redirect(f"/track/{code}")
+
+# TRACK SHIPMENT
 @app.route("/track/<code>")
 def track(code):
     code = code.strip().upper()
