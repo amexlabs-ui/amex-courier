@@ -6,9 +6,9 @@
 <div class="container">
 
 <div class="card">
-<form action="/track/" onsubmit="event.preventDefault(); window.location='/track/'+code.value;">
-<input name="code" id="code" placeholder="Enter Tracking Code">
-<button>Track</button>
+<form action="/track" method="post">
+    <input name="code" placeholder="Enter Tracking Code" required>
+    <button>Track Package</button>
 </form>
 </div>
 
