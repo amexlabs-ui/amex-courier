@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect
+from flask import Flask, render_template, request, redirect, session
 import sqlite3
 import random
 
 app = Flask(__name__)
+app.secret_key = "supersecretkey"
 
 DB = "database.db"
 
@@ -78,26 +79,21 @@ def register():
 # ---------------- LOGIN ----------------
 @app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == "POST":
+    try:
+        if request.method == "POST":
+            username = request.form.get("username")
+            password = request.form.get("password")
 
-        username = request.form["username"]
-        password = request.form["password"]
+            if username == "admin" and password == "admin123":
+                session["admin"] = True
+                return redirect("/admin")
+            else:
+                return "Invalid login"
 
-        if username == "admin" and password == "admin123":
-            session["admin"] = True
-            return redirect("/dashboard")
+        return render_template("login.html")
 
-        conn = sqlite3.connect(DB)
-        c = conn.cursor()
-        c.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
-        user = c.fetchone()
-        conn.close()
-
-        if user:
-            session["user_id"] = user[0]
-            return redirect("/user-dashboard")
-
-    return render_template("login.html")
+    except Exception as e:
+        return f"LOGIN ERROR: {str(e)}"
     
 # ---------- ADMIN DASHBOARD ----------
 @app.route("/admin", methods=["GET", "POST"])
