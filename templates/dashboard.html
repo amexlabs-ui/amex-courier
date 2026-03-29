@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="/static/style.css">
-</head>
+    <h2>Admin Dashboard</h2>
 
-<body>
+<form action="/create" method="post">
+<input name="sender" placeholder="Sender">
+<input name="receiver" placeholder="Receiver">
+<input name="location" placeholder="Location">
+<input name="lat" placeholder="Latitude">
+<input name="lng" placeholder="Longitude">
+<button>Create Shipment</button>
+</form>
 
-<div class="navbar">
-    <div class="logo">Amex Courier Admin</div>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/logout">Logout</a>
-    </div>
+<hr>
+
+{% for s in shipments %}
+<div class="card">
+<p>{{s[1]}} - {{s[4]}}</p>
 </div>
-
-<div class="container">
 
 <!-- CREATE SHIPMENT -->
 <div class="card">
@@ -110,3 +112,5 @@
 
 </body>
 </html>
+
+{% endfor %}
