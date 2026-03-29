@@ -1,81 +1,160 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <h2>Admin Dashboard</h2>
+<meta charset="UTF-8">
+<title>Admin Dashboard - Amex Courier</title>
+<link rel="stylesheet" href="/static/style.css">
 
-<form action="/create" method="post">
-<input name="sender" placeholder="Sender">
-<input name="receiver" placeholder="Receiver">
-<input name="location" placeholder="Location">
-<input name="lat" placeholder="Latitude">
-<input name="lng" placeholder="Longitude">
-<button>Create Shipment</button>
-</form>
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 
-<hr>
+<style>
+body {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    background: #f4f6f9;
+}
 
-{% for s in shipments %}
-<div class="card">
-<p>{{s[1]}} - {{s[4]}}</p>
+/* SIDEBAR */
+.sidebar {
+    width: 240px;
+    height: 100vh;
+    background: #0a2c5e;
+    color: white;
+    position: fixed;
+    padding: 20px;
+}
+
+.sidebar h2 {
+    margin-bottom: 30px;
+}
+
+.sidebar a {
+    display: block;
+    color: white;
+    padding: 10px 0;
+    text-decoration: none;
+}
+
+.sidebar a:hover {
+    opacity: 0.7;
+}
+
+/* MAIN */
+.main {
+    margin-left: 260px;
+    padding: 30px;
+}
+
+/* CARDS */
+.card {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    margin-bottom: 20px;
+}
+
+/* FORM */
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+input, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+}
+
+button {
+    background: #0a2c5e;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #06306f;
+}
+
+/* TABLE */
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+}
+
+/* STATUS BADGES */
+.status {
+    padding: 5px 10px;
+    border-radius: 20px;
+    color: white;
+    font-size: 12px;
+}
+
+.in-transit { background: orange; }
+.delivered { background: green; }
+.cancelled { background: red; }
+.out { background: blue; }
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+    <h2>Amex Admin</h2>
+    <a href="/dashboard">Dashboard</a>
+    <a href="/">Homepage</a>
+    <a href="/logout">Logout</a>
 </div>
+
+<!-- MAIN CONTENT -->
+<div class="main">
+
+<!-- HEADER -->
+<h1>Admin Dashboard</h1>
+<p>Manage shipments and track deliveries</p>
 
 <!-- CREATE SHIPMENT -->
 <div class="card">
 <h2>Create Shipment</h2>
 
-<form method="POST" class="form-grid">
+<form action="/create" method="POST" class="form-grid">
 
-<div>
-<label>User ID</label>
-<input name="user_id" placeholder="Enter user ID" required>
-</div>
+<input name="sender" placeholder="Sender Name" required>
+<input name="receiver" placeholder="Receiver Name" required>
 
-<div>
-<label>Sender Name</label>
-<input name="sender" placeholder="Sender name" required>
-</div>
+<input name="location" placeholder="Current Location (City, Country)" required>
+<input name="delivery_address" placeholder="Delivery Address" required>
 
-<div>
-<label>Receiver Name</label>
-<input name="receiver" placeholder="Receiver name" required>
-</div>
+<input name="lat" placeholder="Latitude (e.g 51.5074)" required>
+<input name="lng" placeholder="Longitude (e.g -0.1278)" required>
 
-<div>
-<label>Delivery Address</label>
-<input name="address" placeholder="Full delivery address" required>
-</div>
-
-<div>
-<label>Current Location</label>
-<input name="location" placeholder="e.g. London, UK" required>
-</div>
-
-<div>
-<label>Package Weight</label>
-<input name="weight" placeholder="e.g. 2kg">
-</div>
-
-<div>
-<label>Delivery Fee ($)</label>
-<input name="fee" placeholder="e.g. 120">
-</div>
-
-<div>
-<label>Status</label>
 <select name="status">
 <option>In Transit</option>
 <option>Out for Delivery</option>
 <option>Delivered</option>
 <option>Cancelled</option>
 </select>
-</div>
 
-<button type="submit" class="full-btn">Create Shipment</button>
+<button type="submit" style="grid-column: span 2;">
+Create Shipment
+</button>
 
 </form>
 </div>
 
-<!-- SHIPMENT TABLE -->
+<!-- SHIPMENTS TABLE -->
 <div class="card">
 <h2>All Shipments</h2>
 
@@ -89,28 +168,27 @@
 
 {% for s in shipments %}
 <tr>
-<td><strong>{{ s[1] }}</strong></td>
+<td><b>{{ s[1] }}</b></td>
 <td>{{ s[3] }}</td>
+
 <td>
 <span class="status 
-{% if s[6]=='Delivered' %}delivered
-{% elif s[6]=='Cancelled' %}cancelled
-{% elif s[6]=='Out for Delivery' %}out
+{% if s[4]=='Delivered' %}delivered
+{% elif s[4]=='Cancelled' %}cancelled
+{% elif s[4]=='Out for Delivery' %}out
 {% else %}in-transit{% endif %}">
-{{ s[6] }}
+{{ s[4] }}
 </span>
 </td>
-<td>{{ s[7] }}</td>
+
+<td>{{ s[5] }}</td>
 </tr>
 {% endfor %}
 
 </table>
-
 </div>
 
 </div>
 
 </body>
 </html>
-
-{% endfor %}
