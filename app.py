@@ -203,7 +203,7 @@ def create():
         return redirect("/login")
 
     try:
-        tracking_code = generate_tracking_code()
+        tracking_code = "AMX" + str(random.randint(100000, 999999))
 
         sender = request.form.get("sender", "").strip()
         receiver = request.form.get("receiver", "").strip()
@@ -214,18 +214,8 @@ def create():
         delivery_fee = request.form.get("delivery_fee", "").strip()
         description = request.form.get("description", "").strip()
 
-        if not sender or not receiver or not location:
-            conn = get_db()
-            shipments = conn.execute("SELECT * FROM shipments ORDER BY id DESC").fetchall()
-            conn.close()
-            return render_template(
-                "dashboard.html",
-                shipments=shipments,
-                get_status_class=get_status_class,
-                error="Sender, receiver, and current location are required."
-            )
-
         conn = get_db()
+
         conn.execute("""
             INSERT INTO shipments (
                 tracking_code, sender, receiver, status, location,
@@ -247,6 +237,7 @@ def create():
         return redirect("/dashboard")
 
     except Exception as e:
+        return f"CREATE ERROR: {e}"
         conn = get_db()
         shipments = conn.execute("SELECT * FROM shipments ORDER BY id DESC").fetchall()
         conn.close()
@@ -258,34 +249,41 @@ def create():
         )
 
 
-@app.route("/update/<tracking_code>", methods=["POST"])
-def update(tracking_code):
-    if session.get("role") != "admin":
-        return redirect("/login")
+def get_db():
+    conn = sqlite3.connect(DB)
+    conn.row_factory = sqlite3.Row
+    return conn
 
-    try:
-        status = request.form.get("status", "").strip()
-        location = request.form.get("location", "").strip()
 
-        if not status or not location:
-            return redirect("/dashboard")
+@app.route("/track", methods=["POST"])
+def track_redirect():
+    code = request.form.get("code", "").strip().upper()
+    if not code:
+        return redirect("/")
+    return redirect(f"/track/{code}")
 
-        conn = get_db()
-        conn.execute("""
-            UPDATE shipments
-            SET status = ?, location = ?
-            WHERE tracking_code = ?
-        """, (status, location, tracking_code))
 
-        conn.execute("""
-            INSERT INTO history (tracking_code, status, location)
-            VALUES (?, ?, ?)
-        """, (tracking_code, status, location))
+@app.route("/track/<code>")
+def track_code(code):
+    code = code.strip().upper()
 
-        conn.commit()
-        conn.close()
+    conn = get_db()
 
-        return redirect("/dashboard")
+    # search the same column your admin create route saves into
+    shipment = conn.execute("""
+        SELECT * FROM shipments
+        WHERE UPPER(TRIM(tracking_code)) = ?
+    """, (code,)).fetchone()
+
+    history = conn.execute("""
+        SELECT * FROM history
+        WHERE UPPER(TRIM(tracking_code)) = ?
+        ORDER BY id DESC
+    """, (code,)).fetchall()
+
+    conn.close()
+
+    return render_template("track.html", shipment=shipment, history=history)
 
     except Exception as e:
         conn = get_db()
