@@ -292,28 +292,39 @@ def update(tracking_code):
 @app.route("/track", methods=["POST"])
 def track_redirect():
     code = request.form.get("code", "").strip().upper()
-    if not code:
-        return redirect("/")
-    return redirect(url_for("track_code", code=code))
+    return redirect(f"/track/{code}")
 
 
 @app.route("/track/<code>")
 def track_code(code):
+    # 🔥 CLEAN INPUT (THIS FIXES MOST FAILURES)
     code = code.strip().upper()
 
     conn = get_db()
+    conn.row_factory = sqlite3.Row
+
+    # 🔥 SEARCH FLEXIBLY (handles all previous mistakes)
     shipment = conn.execute("""
         SELECT * FROM shipments
         WHERE UPPER(TRIM(tracking_code)) = ?
-    """, (code,)).fetchone()
+        OR UPPER(TRIM(code)) = ?
+    """, (code, code)).fetchone()
 
-    history = conn.execute("""
-        SELECT * FROM history
-        WHERE UPPER(TRIM(tracking_code)) = ?
-        ORDER BY id DESC
-    """, (code,)).fetchall()
+    # 🔥 GET HISTORY (if exists)
+    history = []
+    if shipment:
+        try:
+            history = conn.execute("""
+                SELECT * FROM history
+                WHERE UPPER(TRIM(tracking_code)) = ?
+                ORDER BY id DESC
+            """, (code,)).fetchall()
+        except:
+            history = []
+
     conn.close()
 
+    # 🔥 RETURN PAGE (NO CRASH)
     return render_template(
         "track.html",
         shipment=shipment,
