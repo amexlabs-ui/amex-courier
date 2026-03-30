@@ -15,10 +15,14 @@ def get_db():
     return conn
 
 
-def ensure_column(conn, table_name, column_name, column_type):
+def column_exists(conn, table_name, column_name):
     cols = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
-    existing = [c["name"] if isinstance(c, sqlite3.Row) else c[1] for c in cols]
-    if column_name not in existing:
+    names = [c["name"] if isinstance(c, sqlite3.Row) else c[1] for c in cols]
+    return column_name in names
+
+
+def ensure_column(conn, table_name, column_name, column_type):
+    if not column_exists(conn, table_name, column_name):
         conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
 
 
@@ -55,13 +59,12 @@ def init_db():
     )
     """)
 
-    # Auto-upgrade older databases safely
+    # upgrade older DBs safely
     ensure_column(conn, "shipments", "delivery_address", "TEXT")
     ensure_column(conn, "shipments", "weight", "TEXT")
     ensure_column(conn, "shipments", "delivery_fee", "TEXT")
     ensure_column(conn, "shipments", "description", "TEXT")
 
-    # Default admin account
     admin = conn.execute(
         "SELECT * FROM users WHERE username = ?",
         ("admin",)
@@ -81,15 +84,15 @@ init_db()
 
 
 def generate_tracking_code():
-    conn = get_db()
     while True:
         code = "AMX" + str(random.randint(100000, 999999))
+        conn = get_db()
         exists = conn.execute(
             "SELECT 1 FROM shipments WHERE tracking_code = ?",
             (code,)
         ).fetchone()
+        conn.close()
         if not exists:
-            conn.close()
             return code
 
 
@@ -121,30 +124,20 @@ def register():
         password = request.form.get("password", "").strip()
 
         if not username or not password:
-            return render_template("register.html", error="Please fill all fields")
+            return render_template("register.html", error="Please fill in all fields.")
 
         conn = get_db()
-
-        # Check if user exists
-        existing = conn.execute(
-            "SELECT * FROM users WHERE username=?",
-            (username,)
-        ).fetchone()
-
-        if existing:
+        try:
+            conn.execute(
+                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+                (username, password, "customer")
+            )
+            conn.commit()
             conn.close()
-            return render_template("register.html", error="Username already exists")
-
-        # CREATE USER (THIS IS WHAT WAS MISSING OR BROKEN BEFORE)
-        conn.execute(
-            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-            (username, password, "customer")
-        )
-
-        conn.commit()
-        conn.close()
-
-        return redirect("/login")
+            return redirect("/login")
+        except sqlite3.IntegrityError:
+            conn.close()
+            return render_template("register.html", error="Username already exists.")
 
     return render_template("register.html")
 
@@ -203,7 +196,7 @@ def create():
         return redirect("/login")
 
     try:
-        tracking_code = "AMX" + str(random.randint(100000, 999999))
+        tracking_code = generate_tracking_code()
 
         sender = request.form.get("sender", "").strip()
         receiver = request.form.get("receiver", "").strip()
@@ -214,8 +207,18 @@ def create():
         delivery_fee = request.form.get("delivery_fee", "").strip()
         description = request.form.get("description", "").strip()
 
-        conn = get_db()
+        if not sender or not receiver or not location:
+            conn = get_db()
+            shipments = conn.execute("SELECT * FROM shipments ORDER BY id DESC").fetchall()
+            conn.close()
+            return render_template(
+                "dashboard.html",
+                shipments=shipments,
+                get_status_class=get_status_class,
+                error="Sender, receiver, and current location are required."
+            )
 
+        conn = get_db()
         conn.execute("""
             INSERT INTO shipments (
                 tracking_code, sender, receiver, status, location,
@@ -237,7 +240,6 @@ def create():
         return redirect("/dashboard")
 
     except Exception as e:
-        return f"CREATE ERROR: {e}"
         conn = get_db()
         shipments = conn.execute("SELECT * FROM shipments ORDER BY id DESC").fetchall()
         conn.close()
@@ -249,41 +251,34 @@ def create():
         )
 
 
-def get_db():
-    conn = sqlite3.connect(DB)
-    conn.row_factory = sqlite3.Row
-    return conn
+@app.route("/update/<tracking_code>", methods=["POST"])
+def update(tracking_code):
+    if session.get("role") != "admin":
+        return redirect("/login")
 
+    try:
+        status = request.form.get("status", "").strip()
+        location = request.form.get("location", "").strip()
 
-@app.route("/track", methods=["POST"])
-def track_redirect():
-    code = request.form.get("code", "").strip().upper()
-    if not code:
-        return redirect("/")
-    return redirect(f"/track/{code}")
+        if not status or not location:
+            return redirect("/dashboard")
 
+        conn = get_db()
+        conn.execute("""
+            UPDATE shipments
+            SET status = ?, location = ?
+            WHERE tracking_code = ?
+        """, (status, location, tracking_code))
 
-@app.route("/track/<code>")
-def track_code(code):
-    code = code.strip().upper()
+        conn.execute("""
+            INSERT INTO history (tracking_code, status, location)
+            VALUES (?, ?, ?)
+        """, (tracking_code, status, location))
 
-    conn = get_db()
+        conn.commit()
+        conn.close()
 
-    # search the same column your admin create route saves into
-    shipment = conn.execute("""
-        SELECT * FROM shipments
-        WHERE UPPER(TRIM(tracking_code)) = ?
-    """, (code,)).fetchone()
-
-    history = conn.execute("""
-        SELECT * FROM history
-        WHERE UPPER(TRIM(tracking_code)) = ?
-        ORDER BY id DESC
-    """, (code,)).fetchall()
-
-    conn.close()
-
-    return render_template("track.html", shipment=shipment, history=history)
+        return redirect("/dashboard")
 
     except Exception as e:
         conn = get_db()
@@ -300,39 +295,28 @@ def track_code(code):
 @app.route("/track", methods=["POST"])
 def track_redirect():
     code = request.form.get("code", "").strip().upper()
-    return redirect(f"/track/{code}")
+    if not code:
+        return redirect("/")
+    return redirect(url_for("track_code", code=code))
 
 
 @app.route("/track/<code>")
 def track_code(code):
-    # 🔥 CLEAN INPUT (THIS FIXES MOST FAILURES)
     code = code.strip().upper()
 
     conn = get_db()
-    conn.row_factory = sqlite3.Row
-
-    # 🔥 SEARCH FLEXIBLY (handles all previous mistakes)
     shipment = conn.execute("""
         SELECT * FROM shipments
         WHERE UPPER(TRIM(tracking_code)) = ?
-        OR UPPER(TRIM(code)) = ?
-    """, (code, code)).fetchone()
+    """, (code,)).fetchone()
 
-    # 🔥 GET HISTORY (if exists)
-    history = []
-    if shipment:
-        try:
-            history = conn.execute("""
-                SELECT * FROM history
-                WHERE UPPER(TRIM(tracking_code)) = ?
-                ORDER BY id DESC
-            """, (code,)).fetchall()
-        except:
-            history = []
-
+    history = conn.execute("""
+        SELECT * FROM history
+        WHERE UPPER(TRIM(tracking_code)) = ?
+        ORDER BY id DESC
+    """, (code,)).fetchall()
     conn.close()
 
-    # 🔥 RETURN PAGE (NO CRASH)
     return render_template(
         "track.html",
         shipment=shipment,
@@ -343,26 +327,12 @@ def track_code(code):
 
 @app.route("/about")
 def about():
-    try:
-        return render_template("about.html")
-    except Exception:
-        return """
-        <h1>About Amex Courier</h1>
-        <p>Amex Courier provides reliable delivery, shipment visibility, and secure logistics support.</p>
-        <p>Customer Care: frankiebreeuwsma@myself.com</p>
-        """
+    return render_template("about.html")
 
 
 @app.route("/faq")
 def faq():
-    try:
-        return render_template("faq.html")
-    except Exception:
-        return """
-        <h1>FAQs</h1>
-        <p><strong>How do I track my shipment?</strong> Enter your tracking code on the homepage and click Track.</p>
-        <p><strong>How do I contact support?</strong> frankiebreeuwsma@myself.com</p>
-        """
+    return render_template("faq.html")
 
 
 if __name__ == "__main__":
