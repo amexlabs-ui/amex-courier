@@ -121,20 +121,30 @@ def register():
         password = request.form.get("password", "").strip()
 
         if not username or not password:
-            return render_template("register.html", error="Please fill in all fields.")
+            return render_template("register.html", error="Please fill all fields")
 
         conn = get_db()
-        try:
-            conn.execute(
-                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-                (username, password, "customer")
-            )
-            conn.commit()
+
+        # Check if user exists
+        existing = conn.execute(
+            "SELECT * FROM users WHERE username=?",
+            (username,)
+        ).fetchone()
+
+        if existing:
             conn.close()
-            return redirect("/login")
-        except sqlite3.IntegrityError:
-            conn.close()
-            return render_template("register.html", error="Username already exists.")
+            return render_template("register.html", error="Username already exists")
+
+        # CREATE USER (THIS IS WHAT WAS MISSING OR BROKEN BEFORE)
+        conn.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            (username, password, "customer")
+        )
+
+        conn.commit()
+        conn.close()
+
+        return redirect("/login")
 
     return render_template("register.html")
 
