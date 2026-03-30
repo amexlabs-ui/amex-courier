@@ -9,20 +9,17 @@ app.secret_key = "amex-secret-key"
 DB_PATH = "/data/database.db" if os.path.isdir("/data") else "database.db"
 
 
+# ---------------- DATABASE HELPER ----------------
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
     return conn
 
 
-def column_exists(conn, table_name, column_name):
-    cols = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
-    names = [c["name"] if isinstance(c, sqlite3.Row) else c[1] for c in cols]
-    return column_name in names
-
-
 def ensure_column(conn, table_name, column_name, column_type):
-    if not column_exists(conn, table_name, column_name):
+    cols = conn.execute(f"PRAGMA table_info({table_name})").fetchall()
+    names = [c["name"] for c in cols]
+    if column_name not in names:
         conn.execute(f"ALTER TABLE {table_name} ADD COLUMN {column_name} {column_type}")
 
 
@@ -59,7 +56,7 @@ def init_db():
     )
     """)
 
-    # upgrade older DBs safely
+    # Safe schema upgrades
     ensure_column(conn, "shipments", "delivery_address", "TEXT")
     ensure_column(conn, "shipments", "weight", "TEXT")
     ensure_column(conn, "shipments", "delivery_fee", "TEXT")
@@ -83,22 +80,24 @@ def init_db():
 init_db()
 
 
+# ---------------- HELPERS ----------------
 def generate_tracking_code():
+    conn = get_db()
     while True:
         code = "AMX" + str(random.randint(100000, 999999))
-        conn = get_db()
         exists = conn.execute(
             "SELECT 1 FROM shipments WHERE tracking_code = ?",
             (code,)
         ).fetchone()
-        conn.close()
         if not exists:
+            conn.close()
             return code
 
 
 def get_status_class(status):
     if not status:
         return "processing"
+
     s = status.strip().lower()
     mapping = {
         "processing": "processing",
@@ -112,6 +111,7 @@ def get_status_class(status):
     return mapping.get(s, "processing")
 
 
+# ---------------- ROUTES ----------------
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -127,17 +127,23 @@ def register():
             return render_template("register.html", error="Please fill in all fields.")
 
         conn = get_db()
-        try:
-            conn.execute(
-                "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
-                (username, password, "customer")
-            )
-            conn.commit()
-            conn.close()
-            return redirect("/login")
-        except sqlite3.IntegrityError:
+        existing = conn.execute(
+            "SELECT * FROM users WHERE username = ?",
+            (username,)
+        ).fetchone()
+
+        if existing:
             conn.close()
             return render_template("register.html", error="Username already exists.")
+
+        conn.execute(
+            "INSERT INTO users (username, password, role) VALUES (?, ?, ?)",
+            (username, password, "customer")
+        )
+        conn.commit()
+        conn.close()
+
+        return redirect("/login")
 
     return render_template("register.html")
 
@@ -187,9 +193,14 @@ def dashboard():
     ).fetchall()
     conn.close()
 
-    return render_template("dashboard.html", shipments=shipments, get_status_class=get_status_class)
+    return render_template(
+        "dashboard.html",
+        shipments=shipments,
+        get_status_class=get_status_class
+    )
 
 
+# CREATE ROUTE SAVES INTO tracking_code
 @app.route("/create", methods=["POST"])
 def create():
     if session.get("role") != "admin":
@@ -219,6 +230,7 @@ def create():
             )
 
         conn = get_db()
+
         conn.execute("""
             INSERT INTO shipments (
                 tracking_code, sender, receiver, status, location,
@@ -292,6 +304,7 @@ def update(tracking_code):
         )
 
 
+# HOMEPAGE FORM POSTS HERE
 @app.route("/track", methods=["POST"])
 def track_redirect():
     code = request.form.get("code", "").strip().upper()
@@ -305,6 +318,7 @@ def track_code(code):
     code = code.strip().upper()
 
     conn = get_db()
+
     shipment = conn.execute("""
         SELECT * FROM shipments
         WHERE UPPER(TRIM(tracking_code)) = ?
@@ -315,6 +329,7 @@ def track_code(code):
         WHERE UPPER(TRIM(tracking_code)) = ?
         ORDER BY id DESC
     """, (code,)).fetchall()
+
     conn.close()
 
     return render_template(
@@ -333,7 +348,3 @@ def about():
 @app.route("/faq")
 def faq():
     return render_template("faq.html")
-
-
-if __name__ == "__main__":
-    app.run(debug=True)
