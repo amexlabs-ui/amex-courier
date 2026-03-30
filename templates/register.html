@@ -1,21 +1,146 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>Login</title>
-<link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<title>Register - Amex Courier</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    height: 100vh;
+    background: linear-gradient(135deg, #0a2c5e, #1e3c72);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* CONTAINER */
+.container {
+    display: flex;
+    width: 900px;
+    height: 520px;
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+}
+
+/* LEFT */
+.left {
+    flex: 1;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    color: white;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.left h1 {
+    font-size: 32px;
+}
+
+.left p {
+    opacity: 0.8;
+    margin-top: 10px;
+}
+
+/* RIGHT */
+.right {
+    flex: 1;
+    padding: 40px;
+}
+
+.right h2 {
+    margin-bottom: 20px;
+}
+
+/* INPUT */
+.input-group {
+    margin-bottom: 15px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+}
+
+/* BUTTON */
+button {
+    width: 100%;
+    padding: 12px;
+    background: #0a2c5e;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #06306f;
+}
+
+/* ERROR */
+.error {
+    color: red;
+    margin-bottom: 10px;
+}
+
+/* LINKS */
+.links {
+    margin-top: 15px;
+    text-align: center;
+}
+</style>
+
 </head>
+
 <body>
 
-<div class="form-box">
-<h2>Login</h2>
+<div class="container">
 
-<form method="POST">
-<input name="username" placeholder="Username" required>
-<input type="password" name="password" placeholder="Password" required>
-<button>Login</button>
-</form>
+    <!-- LEFT -->
+    <div class="left">
+        <h1>Create Account</h1>
+        <p>Register to track shipments and manage deliveries with Amex Courier.</p>
+    </div>
 
-<p>No account? <a href="/register">Register</a></p>
+    <!-- RIGHT -->
+    <div class="right">
+        <h2>Register</h2>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/register">
+
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <button type="submit">Create Account</button>
+
+        </form>
+
+        <div class="links">
+            <p>Already have an account? <a href="/login">Login</a></p>
+        </div>
+    </div>
 
 </div>
 
