@@ -40,7 +40,7 @@
         display: block;
         color: white;
         text-decoration: none;
-        padding: 12px 0;
+        padding: 10px 0;
         font-weight: 500;
         opacity: 0.95;
     }
@@ -121,16 +121,10 @@
         font-size: 14px;
         background: #fff;
         outline: none;
-        transition: border-color 0.2s ease, box-shadow 0.2s ease;
-    }
-
-    input:focus, select:focus, textarea:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
     textarea {
-        min-height: 110px;
+        min-height: 100px;
         resize: vertical;
     }
 
@@ -148,7 +142,6 @@
         font-size: 15px;
         font-weight: 600;
         cursor: pointer;
-        transition: background 0.2s ease;
     }
 
     .btn-primary:hover {
@@ -186,23 +179,13 @@
     }
 
     .status-pill {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
+        display: inline-block;
         padding: 7px 12px;
         border-radius: 999px;
         color: white;
         font-size: 12px;
         font-weight: 600;
         white-space: nowrap;
-    }
-
-    .status-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.95);
-        box-shadow: 0 0 8px rgba(255,255,255,0.6);
     }
 
     .processing { background: #6b7280; }
@@ -288,43 +271,43 @@
 
         <form action="/create" method="POST" class="form-grid">
             <div class="form-group">
-                <label>Sender Name</label>
-                <input type="text" name="sender" placeholder="Sender Name" required>
+                <label for="sender">Sender Name</label>
+                <input id="sender" type="text" name="sender" placeholder="Sender Name" required>
             </div>
 
             <div class="form-group">
-                <label>Receiver Name</label>
-                <input type="text" name="receiver" placeholder="Receiver Name" required>
+                <label for="receiver">Receiver Name</label>
+                <input id="receiver" type="text" name="receiver" placeholder="Receiver Name" required>
             </div>
 
             <div class="form-group">
-                <label>Current Location</label>
-                <input type="text" name="location" placeholder="Current Location" required>
+                <label for="location">Current Location</label>
+                <input id="location" type="text" name="location" placeholder="Current Location" required>
             </div>
 
             <div class="form-group">
-                <label>Delivery Address</label>
-                <input type="text" name="delivery_address" placeholder="Delivery Address" required>
+                <label for="delivery_address">Delivery Address</label>
+                <input id="delivery_address" type="text" name="delivery_address" placeholder="Delivery Address" required>
             </div>
 
             <div class="form-group">
-                <label>Weight</label>
-                <input type="text" name="weight" placeholder="e.g. 2kg">
+                <label for="weight">Weight</label>
+                <input id="weight" type="text" name="weight" placeholder="e.g. 2kg">
             </div>
 
             <div class="form-group">
-                <label>Delivery Fee</label>
-                <input type="text" name="delivery_fee" placeholder="e.g. $120">
+                <label for="delivery_fee">Delivery Fee</label>
+                <input id="delivery_fee" type="text" name="delivery_fee" placeholder="e.g. $120">
             </div>
 
             <div class="form-group full-width">
-                <label>Description</label>
-                <textarea name="description" placeholder="Package description"></textarea>
+                <label for="description">Package Description</label>
+                <textarea id="description" name="description" placeholder="Package description"></textarea>
             </div>
 
             <div class="form-group full-width">
-                <label>Status</label>
-                <select name="status">
+                <label for="status">Status</label>
+                <select id="status" name="status">
                     <option>Processing</option>
                     <option>In Transit</option>
                     <option>Out for Delivery</option>
@@ -339,14 +322,13 @@
 
         <div class="helper-text">
             Tracking codes are generated automatically when a shipment is created.
-            Stored shipment data will remain available until you delete it from the database or hosting storage.
         </div>
     </div>
 
     <div class="card">
         <h2>All Shipments</h2>
 
-        {% if shipments %}
+        {% if shipments and shipments|length > 0 %}
             <div class="table-wrap">
                 <table>
                     <tr>
@@ -362,8 +344,23 @@
                         <td class="tracking-code">{{ s['tracking_code'] }}</td>
                         <td>{{ s['receiver'] }}</td>
                         <td>
-                            <span class="status-pill {{ get_status_class(s['status']) }}">
-                                <span class="status-dot"></span>
+                            {% set status_class = 'processing' %}
+                            {% if s['status'] %}
+                                {% set status_text = s['status']|lower %}
+                                {% if status_text == 'in transit' %}
+                                    {% set status_class = 'in-transit' %}
+                                {% elif status_text == 'out for delivery' %}
+                                    {% set status_class = 'out-for-delivery' %}
+                                {% elif status_text == 'delivered' %}
+                                    {% set status_class = 'delivered' %}
+                                {% elif status_text == 'cancelled' or status_text == 'canceled' %}
+                                    {% set status_class = 'cancelled' %}
+                                {% elif status_text == 'delayed' %}
+                                    {% set status_class = 'delayed' %}
+                                {% endif %}
+                            {% endif %}
+
+                            <span class="status-pill {{ status_class }}">
                                 {{ s['status'] }}
                             </span>
                         </td>
