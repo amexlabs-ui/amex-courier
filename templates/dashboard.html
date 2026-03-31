@@ -121,6 +121,12 @@
         font-size: 14px;
         background: #fff;
         outline: none;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    input:focus, select:focus, textarea:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
     }
 
     textarea {
@@ -321,14 +327,14 @@
         </form>
 
         <div class="helper-text">
-            Tracking codes are generated automatically when a shipment is created.
+            Tracking codes are generated automatically when a shipment is created and remain stored until you remove them from your database or hosting storage.
         </div>
     </div>
 
     <div class="card">
         <h2>All Shipments</h2>
 
-        {% if shipments and shipments|length > 0 %}
+        {% if shipments %}
             <div class="table-wrap">
                 <table>
                     <tr>
@@ -340,26 +346,26 @@
                     </tr>
 
                     {% for s in shipments %}
+                    {% set status_class = 'processing' %}
+                    {% if s['status'] %}
+                        {% set status_text = s['status']|lower %}
+                        {% if status_text == 'in transit' %}
+                            {% set status_class = 'in-transit' %}
+                        {% elif status_text == 'out for delivery' %}
+                            {% set status_class = 'out-for-delivery' %}
+                        {% elif status_text == 'delivered' %}
+                            {% set status_class = 'delivered' %}
+                        {% elif status_text == 'cancelled' or status_text == 'canceled' %}
+                            {% set status_class = 'cancelled' %}
+                        {% elif status_text == 'delayed' %}
+                            {% set status_class = 'delayed' %}
+                        {% endif %}
+                    {% endif %}
+
                     <tr>
                         <td class="tracking-code">{{ s['tracking_code'] }}</td>
                         <td>{{ s['receiver'] }}</td>
                         <td>
-                            {% set status_class = 'processing' %}
-                            {% if s['status'] %}
-                                {% set status_text = s['status']|lower %}
-                                {% if status_text == 'in transit' %}
-                                    {% set status_class = 'in-transit' %}
-                                {% elif status_text == 'out for delivery' %}
-                                    {% set status_class = 'out-for-delivery' %}
-                                {% elif status_text == 'delivered' %}
-                                    {% set status_class = 'delivered' %}
-                                {% elif status_text == 'cancelled' or status_text == 'canceled' %}
-                                    {% set status_class = 'cancelled' %}
-                                {% elif status_text == 'delayed' %}
-                                    {% set status_class = 'delayed' %}
-                                {% endif %}
-                            {% endif %}
-
                             <span class="status-pill {{ status_class }}">
                                 {{ s['status'] }}
                             </span>
@@ -386,9 +392,7 @@
                 </table>
             </div>
         {% else %}
-            <div class="empty-state">
-                No shipments created yet.
-            </div>
+            <div class="empty-state">No shipments created yet.</div>
         {% endif %}
     </div>
 </div>
