@@ -9,11 +9,11 @@ app.secret_key = "amex-secret-key"
 DB_PATH = "/data/database.db" if os.path.isdir("/data") else "database.db"
 
 
-# ---------------- DATABASE HELPER ----------------
+# ---------------- DATABASE ----------------
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return render_template("dashboard.html", shipments=shipments, error=error_if_any)
+    return conn
 
 
 def ensure_column(conn, table_name, column_name, column_type):
@@ -56,7 +56,7 @@ def init_db():
     )
     """)
 
-    # Safe schema upgrades
+    # Safe auto-upgrades for older databases
     ensure_column(conn, "shipments", "delivery_address", "TEXT")
     ensure_column(conn, "shipments", "weight", "TEXT")
     ensure_column(conn, "shipments", "delivery_fee", "TEXT")
@@ -111,12 +111,23 @@ def get_status_class(status):
     return mapping.get(s, "processing")
 
 
-# ---------------- ROUTES ----------------
+# ---------------- BASIC PAGES ----------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
 
+@app.route("/about")
+def about():
+    return render_template("about.html")
+
+
+@app.route("/faq")
+def faq():
+    return render_template("faq.html")
+
+
+# ---------------- AUTH ----------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
@@ -182,6 +193,7 @@ def logout():
     return redirect("/")
 
 
+# ---------------- DASHBOARD ----------------
 @app.route("/dashboard")
 def dashboard():
     if session.get("role") != "admin":
@@ -193,14 +205,9 @@ def dashboard():
     ).fetchall()
     conn.close()
 
-    return render_template(
-        "dashboard.html",
-        shipments=shipments,
-        get_status_class=get_status_class
-    )
+    return render_template("dashboard.html", shipments=shipments, error=None)
 
 
-# CREATE ROUTE SAVES INTO tracking_code
 @app.route("/create", methods=["POST"])
 def create():
     if session.get("role") != "admin":
@@ -225,20 +232,32 @@ def create():
             return render_template(
                 "dashboard.html",
                 shipments=shipments,
-                get_status_class=get_status_class,
                 error="Sender, receiver, and current location are required."
             )
 
         conn = get_db()
-
         conn.execute("""
             INSERT INTO shipments (
-                tracking_code, sender, receiver, status, location,
-                delivery_address, weight, delivery_fee, description
+                tracking_code,
+                sender,
+                receiver,
+                status,
+                location,
+                delivery_address,
+                weight,
+                delivery_fee,
+                description
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
-            tracking_code, sender, receiver, status, location,
-            delivery_address, weight, delivery_fee, description
+            tracking_code,
+            sender,
+            receiver,
+            status,
+            location,
+            delivery_address,
+            weight,
+            delivery_fee,
+            description
         ))
 
         conn.execute("""
@@ -258,7 +277,6 @@ def create():
         return render_template(
             "dashboard.html",
             shipments=shipments,
-            get_status_class=get_status_class,
             error=f"Create error: {e}"
         )
 
@@ -299,12 +317,11 @@ def update(tracking_code):
         return render_template(
             "dashboard.html",
             shipments=shipments,
-            get_status_class=get_status_class,
             error=f"Update error: {e}"
         )
 
 
-# HOMEPAGE FORM POSTS HERE
+# ---------------- TRACKING ----------------
 @app.route("/track", methods=["POST"])
 def track_redirect():
     code = request.form.get("code", "").strip().upper()
@@ -332,19 +349,16 @@ def track_code(code):
 
     conn.close()
 
+    # Pass multiple variable names for compatibility with your existing track template
     return render_template(
         "track.html",
         shipment=shipment,
+        s=shipment,
+        data=shipment,
         history=history,
         get_status_class=get_status_class
     )
 
 
-@app.route("/about")
-def about():
-    return render_template("about.html")
-
-
-@app.route("/faq")
-def faq():
-    return render_template("faq.html")
+if __name__ == "__main__":
+    app.run(debug=True)
