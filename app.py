@@ -13,7 +13,7 @@ DB_PATH = "/data/database.db" if os.path.isdir("/data") else "database.db"
 def get_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
-    return conn
+    return render_template("dashboard.html", shipments=shipments, error=error_if_any)
 
 
 def ensure_column(conn, table_name, column_name, column_type):
